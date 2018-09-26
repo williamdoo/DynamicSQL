@@ -61,7 +61,7 @@ namespace DynamicSQL
         }
        
         #region Select
-        public List<T> GetTodos<T>() where T : new()
+        public IList<T> GetTodos<T>() where T : new()
         {
             T t = new T();
             string comandoSelect = "";
@@ -75,7 +75,7 @@ namespace DynamicSQL
             return Consultar<T>(comandoSelect);
         }
 
-        public List<T> Get<T>(string clausulaWhere, object parametros) where T : new()
+        public IList<T> Get<T>(string clausulaWhere, object parametros) where T : new()
         {
             T t = new T();
             string comandoSelect = "";
@@ -101,7 +101,7 @@ namespace DynamicSQL
             return ds;
         }
 
-        public List<T> Consultar<T>(string comando) where T : new()
+        public IList<T> Consultar<T>(string comando) where T : new()
         {
             List<T> listDynamic = new List<T>();
 

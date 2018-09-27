@@ -54,9 +54,12 @@ namespace DynamicSQL
 
         private void AddParametro(object parametro)
         {
-            foreach (var item in parametro.GetType().GetProperties())
+            if (parametro != null)
             {
-                SqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
+                foreach (var item in parametro.GetType().GetProperties())
+                {
+                    SqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
+                }
             }
         }
         
@@ -68,7 +71,7 @@ namespace DynamicSQL
 
             comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)}";
 
-            return Consultar<T>(comandoSelect);
+            return Consultar<T>(comandoSelect, null);
         }
 
         public IList<T> Get<T>(string clausulaWhere, object parametros) where T : new()
@@ -79,14 +82,14 @@ namespace DynamicSQL
             AddParametro(parametros);
             comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)} {clausulaWhere.Trim()} ";
 
-            return Consultar<T>(comandoSelect);
+            return Consultar<T>(comandoSelect, parametros);
         }
 
-
-        public IList<T> Consultar<T>(string comando) where T : new()
+        public IList<T> Consultar<T>(string comando, object parametros=null) where T : new()
         {
             List<T> listDynamic = new List<T>();
 
+            AddParametro(parametros);
             SqlComando.CommandText = comando;
             SqlDataReader sqldr = SqlComando.ExecuteReader();
 

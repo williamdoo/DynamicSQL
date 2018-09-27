@@ -17,9 +17,9 @@ namespace TesteDynamicSQL
         static void Main(string[] args)
         {
             con = new Conexao("");
-            //CarregarDadosDataSet();
-            //CarregarDadosClasseTipada();
-            //CarregarTodosDadosClasseTipada();
+            CarregarDadosDataSet();
+            CarregarDadosClasseTipada();
+            CarregarTodosDadosClasseTipada();
             CarregarDadosEspecificoClasseTipada();
             Console.ReadKey();
         }
@@ -41,7 +41,7 @@ namespace TesteDynamicSQL
             List<TransacoesEstoque> trans;
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                trans = comm.Consultar<TransacoesEstoque>("select top 1000000 * from TRANSACOES_ESTOQUE");
+                trans = comm.Consultar<TransacoesEstoque>("select top 1000000 * from TRANSACOES_ESTOQUE").ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -53,7 +53,7 @@ namespace TesteDynamicSQL
             List<TransacoesEstoque> trans;
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                trans = comm.GetTodos<TransacoesEstoque>();
+                trans = comm.GetTodos<TransacoesEstoque>().ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -65,7 +65,7 @@ namespace TesteDynamicSQL
             List<TransacoesEstoque> trans;
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                trans = comm.Get<TransacoesEstoque>("where ID_TRES > @ID_TRES and QTDE_TRES = @QTDE_TRES", new { ID_TRES = 15232604, QTDE_TRES = 10 });
+                trans = comm.Get<TransacoesEstoque>("where ID_TRES > @ID_TRES and QTDE_TRES = @QTDE_TRES", new { ID_TRES = 15232604, QTDE_TRES = 10 }).ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");

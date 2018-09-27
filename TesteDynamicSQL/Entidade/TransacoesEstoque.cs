@@ -10,7 +10,7 @@ namespace TesteDynamicSQL.Entidade
     [TabelaDB(Nome = "TRANSACOES_ESTOQUE")]
     public class TransacoesEstoque
     {
-        [CampoDB(Primarykey = true, Incremento = true)]
+        [CampoDB(ChavePrimaria = true, Incremento = true)]
         public int ID_TRES { get; set; }
         public int ID_OPER { get; set; }
         public int? COD_FORN { get; set; }

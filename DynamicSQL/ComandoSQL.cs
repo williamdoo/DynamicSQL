@@ -21,7 +21,7 @@ namespace DynamicSQL
 
         public System.Data.CommandType TipoComando
         {
-            get { return SqlComando.CommandType; }
+            get { return SqlComando.CommandType; }                                                                  
             set { SqlComando.CommandType = value; }
         }
 
@@ -59,19 +59,15 @@ namespace DynamicSQL
                 SqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
             }
         }
-       
+        
         #region Select
         public IList<T> GetTodos<T>() where T : new()
         {
             T t = new T();
             string comandoSelect = "";
 
-            TabelaDB[] atributos = (TabelaDB[])typeof(T).GetCustomAttributes(typeof(TabelaDB), true);
-            if (atributos.Length > 0)
-            {
-                TabelaDB atributo = atributos[0];
-                comandoSelect = $"SELECT * FROM {atributo.Nome}";
-            }
+            comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)}";
+
             return Consultar<T>(comandoSelect);
         }
 
@@ -81,25 +77,11 @@ namespace DynamicSQL
             string comandoSelect = "";
 
             AddParametro(parametros);
-            TabelaDB[] atributos = (TabelaDB[])typeof(T).GetCustomAttributes(typeof(TabelaDB), true);
-            if (atributos.Length > 0)
-            {
-                TabelaDB atributo = atributos[0];
-                comandoSelect = $"SELECT * FROM {atributo.Nome} {clausulaWhere.Trim()} ";
-            }
+            comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)} {clausulaWhere.Trim()} ";
+
             return Consultar<T>(comandoSelect);
         }
 
-        public DataSet Consultar(string comando)
-        {
-            DataTable dt = new DataTable();
-            DataSet ds = new DataSet();
-
-            SqlComando.CommandText = comando;
-            SqlDataAdapter sqlda = new SqlDataAdapter(SqlComando);
-            sqlda.Fill(ds);
-            return ds;
-        }
 
         public IList<T> Consultar<T>(string comando) where T : new()
         {
@@ -107,7 +89,7 @@ namespace DynamicSQL
 
             SqlComando.CommandText = comando;
             SqlDataReader sqldr = SqlComando.ExecuteReader();
-            
+
             while (sqldr.Read())
             {
                 T t = new T();
@@ -132,6 +114,17 @@ namespace DynamicSQL
             sqldr.Close();
             return listDynamic;
         }
+
+        public DataSet Consultar(string comando)
+        {
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+
+            SqlComando.CommandText = comando;
+            SqlDataAdapter sqlda = new SqlDataAdapter(SqlComando);
+            sqlda.Fill(ds);
+            return ds;
+        }
         #endregion
 
         public int Inserir(string comando, object entidade=null)
@@ -145,13 +138,13 @@ namespace DynamicSQL
             return SqlComando.ExecuteNonQuery();
         }
 
-        public int Update(string Comando)
+        public int Alterar<T>(string Comando)
         {
             SqlComando.CommandText = Comando;
             return SqlComando.ExecuteNonQuery();
         }
 
-        public int Deletar(string comando)
+        public int Apagar(string comando)
         {
             SqlComando.CommandText = comando;
             return SqlComando.ExecuteNonQuery();

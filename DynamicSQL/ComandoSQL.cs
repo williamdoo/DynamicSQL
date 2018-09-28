@@ -1,5 +1,6 @@
 ﻿using DynamicSQL.Extencoes;
 using DynamicSQL.Flags;
+using DynamicSQL.Libs;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -52,16 +53,16 @@ namespace DynamicSQL
             SqlTran.Rollback();
         }
 
-        private void AddParametro(object parametro)
-        {
-            if (parametro != null)
-            {
-                foreach (var item in parametro.GetType().GetProperties())
-                {
-                    SqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
-                }
-            }
-        }
+        //private void AddParametro(object parametro)
+        //{
+        //    if (parametro != null)
+        //    {
+        //        foreach (var item in parametro.GetType().GetProperties())
+        //        {
+        //            SqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
+        //        }
+        //    }
+        //}
         
         #region Select
         public IList<T> GetTodos<T>() where T : new()
@@ -79,7 +80,7 @@ namespace DynamicSQL
             T t = new T();
             string comandoSelect = "";
 
-            AddParametro(parametros);
+            AddParametro(SqlComando, parametros);
             comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)} {clausulaWhere.Trim()} ";
 
             return Consultar<T>(comandoSelect, parametros);
@@ -88,8 +89,7 @@ namespace DynamicSQL
         public IList<T> Consultar<T>(string comando, object parametros=null) where T : new()
         {
             List<T> listDynamic = new List<T>();
-
-            AddParametro(parametros);
+            AddParametro(SqlComando, parametros);
             SqlComando.CommandText = comando;
             SqlDataReader sqldr = SqlComando.ExecuteReader();
 
@@ -130,14 +130,16 @@ namespace DynamicSQL
         }
         #endregion
 
-        public int Inserir(string comando, object entidade=null)
+        public int Inserir<T>(object entidade, object parametro)
         {
+            string strInsert = "";
             if (entidade != null)
             {
-
+                strInsert = $"INSERT INTO ({parametro.JuntarParametro(", ")}) values ({parametro.JuntarParametro(", ", "@")})";
             }
 
-            SqlComando.CommandText = comando;
+            SqlComando.CommandText = strInsert;
+
             return SqlComando.ExecuteNonQuery();
         }
 

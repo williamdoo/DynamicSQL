@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DynamicSQL.Libs;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DynamicSQL
 {
-    public class Comando
+    public class Comando:AppSQL
     {
         protected SqlCommand SqlComando { get; set; }
         protected SqlTransaction SqlTran { get; set; }

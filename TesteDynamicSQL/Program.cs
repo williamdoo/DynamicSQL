@@ -1,4 +1,5 @@
 ﻿using DynamicSQL;
+using DynamicSQL.Libs;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,13 +18,27 @@ namespace TesteDynamicSQL
         static void Main(string[] args)
         {
             con = new Conexao("");
-            CarregarDadosDataSet();
-            CarregarDadosClasseTipada();
-            CarregarTodosDadosClasseTipada();
-            CarregarDadosEspecificoClasseTipada();
+            //CarregarDadosDataSet();
+            //CarregarDadosClasseTipada();
+            //CarregarTodosDadosClasseTipada();
+            //CarregarDadosEspecificoClasseTipada();
+            GerarString();
             Console.ReadKey();
         }
-        
+
+        private static void GerarString()
+        {
+            object param = new
+            {
+                Valor = 0,
+                Valor1 = 12,
+                Valor2 = "teste"
+            };
+
+            string juncao = param.JuntarParametro(", ");
+        }
+
+
         private static void CarregarDadosDataSet()
         {
             Stopwatch sw = Stopwatch.StartNew();

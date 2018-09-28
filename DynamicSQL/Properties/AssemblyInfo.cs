@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // conjunto de atributos. Altere estes valores de atributo para modificar as informações
 // associada a um assembly.
 [assembly: AssemblyTitle("DynamicSQL")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("DLL para realizar comandos SQL de uma forma simples em projetos")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("William Oliveira do Ó")]
 [assembly: AssemblyProduct("DynamicSQL")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]

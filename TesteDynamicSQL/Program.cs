@@ -22,8 +22,16 @@ namespace TesteDynamicSQL
             //CarregarDadosClasseTipada();
             //CarregarTodosDadosClasseTipada();
             //CarregarDadosEspecificoClasseTipada();
-            //InserirTelefone();
-            InserirTelefoneComando();
+            //InserirTelefoneBegin();
+            //InserirTelefoneBegin();
+            //UpdateTelefone();
+            //UpdateTelefoneBegin();
+            //UpdateTelefone2();
+            //UpdateTelefoneTipado();
+            //DeleteTelefone();
+            //DeleteTelefoneBegin();
+            //DeleteTelefone2();
+            DeleteTelefoneTipado();
             Console.ReadKey();
         }
 
@@ -32,7 +40,7 @@ namespace TesteDynamicSQL
             Stopwatch sw = Stopwatch.StartNew();
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                comm.Consultar("select top 1000000 * from TRANSACOES_ESTOQUE");
+                comm.Select("select top 1000000 * from TRANSACOES_ESTOQUE");
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta DataSet - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -44,7 +52,7 @@ namespace TesteDynamicSQL
             List<TransacoesEstoque> trans;
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                trans = comm.Consultar<TransacoesEstoque>("select top 1000000 * from TRANSACOES_ESTOQUE").ToList();
+                trans = comm.Select<TransacoesEstoque>("select top 1000000 * from TRANSACOES_ESTOQUE").ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -56,7 +64,7 @@ namespace TesteDynamicSQL
             List<TransacoesEstoque> trans;
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                trans = comm.GetTodos<TransacoesEstoque>().ToList();
+                trans = comm.GetAll<TransacoesEstoque>().ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -68,7 +76,7 @@ namespace TesteDynamicSQL
             List<TransacoesEstoque> trans;
             using (ComandoSQL comm = con.AbrirComandoSQL())
             {
-                trans = comm.Get<TransacoesEstoque>("where ID_TRES > @ID_TRES and QTDE_TRES = @QTDE_TRES", new { ID_TRES = 15232604, QTDE_TRES = 10 }).ToList();
+                trans = comm.Get<TransacoesEstoque>("ID_TRES > @ID_TRES and QTDE_TRES = @QTDE_TRES", new { ID_TRES = 15232604, QTDE_TRES = 10 }).ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -85,7 +93,7 @@ namespace TesteDynamicSQL
                     OBS_FONE = "Teste de comando inserir1"
                 };
 
-                comm.Inserir(telefone1);
+                comm.Insert(telefone1);
             }
         }
 
@@ -100,7 +108,7 @@ namespace TesteDynamicSQL
                     OBS_FONE = "Teste de comando inserir1"
                 };
 
-                comm.Inserir(telefone1);
+                comm.Insert(telefone1);
 
                 Telefones telefone2 = new Telefones()
                 {
@@ -109,7 +117,7 @@ namespace TesteDynamicSQL
                     OBS_FONE = "Teste de comando inserir1"
                 };
 
-                comm.Inserir(telefone2);
+                comm.Insert(telefone2);
 
                 comm.Commit();
             }
@@ -120,8 +128,84 @@ namespace TesteDynamicSQL
         {
             using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
-                int id = comm.Inserir("insert into TELEFONES (NUMERO_FONE, OBS_FONE, ID_PESSOA) values ('11123456789', 'Teste de comando inserir', 40)");
-                int id2 = comm.Inserir("TELEFONES",  new { NUMERO_FONE = 11987654321, OBS_FONE = "Teste inserir", ID_PESSOA = 40 });
+                int id = comm.Insert("insert into TELEFONES (NUMERO_FONE, OBS_FONE, ID_PESSOA) values ('11123456789', 'Teste de comando inserir', 40)");
+                int id2 = comm.Insert("TELEFONES",  new { NUMERO_FONE = 11987654321, OBS_FONE = "Teste inserir", ID_PESSOA = 40 });
+                comm.Commit();
+            }
+        }
+
+
+        private static void UpdateTelefone()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL())
+            {
+                int linhasAlterada = comm.Update("update telefones set OBS_FONE = 'alteração' where ID_FONE = 1878");
+            }
+        }
+
+        private static void UpdateTelefoneBegin()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                int linhasAlterada = comm.Update("update telefones set OBS_FONE = 'alteração2' where ID_FONE = 1878");
+                comm.Commit();
+            }
+        }
+
+        private static void UpdateTelefone2()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                int linhasAlterada = comm.Update("telefones", new { OBS_FONE = "Nova alteração" }, "ID_FONE = 1878");
+                comm.Commit();
+            }
+        }
+
+        private static void UpdateTelefoneTipado()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                Telefones fone = comm.Get<Telefones>("ID_FONE = @ID_FONE", new { ID_FONE = 10431 }).FirstOrDefault();
+
+                fone.OBS_FONE = "Alteração com busca";
+                int linhasAlterada = comm.Update(fone);
+                comm.Commit();
+            }
+        }
+
+        private static void DeleteTelefone()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL())
+            {
+                int linhasAlterada = comm.Delete("delete from telefones where ID_FONE = 10469");
+            }
+        }
+
+        private static void DeleteTelefoneBegin()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                int linhasAlterada = comm.Delete("delete from telefones where ID_FONE = 10470");
+                comm.Commit();
+            }
+        }
+
+        private static void DeleteTelefone2()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                int linhasAlterada = comm.Delete("telefones", "ID_FONE = 10471");
+                comm.Commit();
+            }
+        }
+
+        private static void DeleteTelefoneTipado()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                Telefones fone = comm.Get<Telefones>("ID_FONE = @ID_FONE", new { ID_FONE = 10474 }).FirstOrDefault();
+
+                int linhasAlterada = comm.Delete(fone);
                 comm.Commit();
             }
         }

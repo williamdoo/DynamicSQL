@@ -12,5 +12,16 @@ namespace DynamicSQL
     {
         protected SqlCommand SqlComando { get; set; }
         protected SqlTransaction SqlTran { get; set; }
+
+        protected void BeginTransation()
+        {
+            SqlTran = SqlComando.Connection.BeginTransaction();
+            SqlComando.Transaction = SqlTran;
+        }
+
+        protected bool BeginTransationAberto()
+        {
+            return SqlTran != null;
+        }
     }
 }

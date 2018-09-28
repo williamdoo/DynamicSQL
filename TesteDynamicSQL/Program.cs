@@ -22,22 +22,10 @@ namespace TesteDynamicSQL
             //CarregarDadosClasseTipada();
             //CarregarTodosDadosClasseTipada();
             //CarregarDadosEspecificoClasseTipada();
-            GerarString();
+            //InserirTelefone();
+            InserirTelefoneComando();
             Console.ReadKey();
         }
-
-        private static void GerarString()
-        {
-            object param = new
-            {
-                Valor = 0,
-                Valor1 = 12,
-                Valor2 = "teste"
-            };
-
-            string juncao = param.JuntarParametro(", ");
-        }
-
 
         private static void CarregarDadosDataSet()
         {
@@ -84,6 +72,58 @@ namespace TesteDynamicSQL
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
+        }
+
+        private static void InserirTelefone()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL())
+            {
+                Telefones telefone1 = new Telefones()
+                {
+                    NUMERO_FONE = "11123456789",
+                    ID_PESSOA = 40,
+                    OBS_FONE = "Teste de comando inserir1"
+                };
+
+                comm.Inserir(telefone1);
+            }
+        }
+
+        private static void InserirTelefoneBegin()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                Telefones telefone1 = new Telefones()
+                {
+                    NUMERO_FONE = "11123456789",
+                    ID_PESSOA = 40,
+                    OBS_FONE = "Teste de comando inserir1"
+                };
+
+                comm.Inserir(telefone1);
+
+                Telefones telefone2 = new Telefones()
+                {
+                    NUMERO_FONE = "11987654321",
+                    ID_PESSOA = 40,
+                    OBS_FONE = "Teste de comando inserir1"
+                };
+
+                comm.Inserir(telefone2);
+
+                comm.Commit();
+            }
+        }
+
+
+        private static void InserirTelefoneComando()
+        {
+            using (ComandoSQL comm = con.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            {
+                int id = comm.Inserir("insert into TELEFONES (NUMERO_FONE, OBS_FONE, ID_PESSOA) values ('11123456789', 'Teste de comando inserir', 40)");
+                int id2 = comm.Inserir("TELEFONES",  new { NUMERO_FONE = 11987654321, OBS_FONE = "Teste inserir", ID_PESSOA = 40 });
+                comm.Commit();
+            }
         }
     }
 }

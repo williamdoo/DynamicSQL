@@ -28,20 +28,17 @@ namespace DynamicSQL
 
         public ComandoSQL(SqlConnection con, EnumBegin.Begin beginTrans)
         {
-            SqlComando = new SqlCommand();
+            SqlComando = con.CreateCommand();
             SqlComando.Connection = con;
             SqlComando.CommandType = System.Data.CommandType.Text;
 
             if(beginTrans == EnumBegin.Begin.BeginTransaction)
             {
-                BeginTransation();
+                SqlTran = con.BeginTransaction();
+                SqlComando.Transaction = SqlTran;
             }
         }
 
-        private void BeginTransation()
-        {
-            SqlTran = SqlComando.Connection.BeginTransaction();
-        }
 
         public void Commit()
         {
@@ -53,24 +50,13 @@ namespace DynamicSQL
             SqlTran.Rollback();
         }
 
-        //private void AddParametro(object parametro)
-        //{
-        //    if (parametro != null)
-        //    {
-        //        foreach (var item in parametro.GetType().GetProperties())
-        //        {
-        //            SqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
-        //        }
-        //    }
-        //}
-        
         #region Select
         public IList<T> GetTodos<T>() where T : new()
         {
             T t = new T();
             string comandoSelect = "";
 
-            comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)}";
+            comandoSelect = $"SELECT * FROM {GetNomeTabela(t)}";
 
             return Consultar<T>(comandoSelect, null);
         }
@@ -81,7 +67,7 @@ namespace DynamicSQL
             string comandoSelect = "";
 
             AddParametro(SqlComando, parametros);
-            comandoSelect = $"SELECT * FROM {TabelaDB.GetNomeTabela(t)} {clausulaWhere.Trim()} ";
+            comandoSelect = $"SELECT * FROM {GetNomeTabela(t)} {clausulaWhere.Trim()} ";
 
             return Consultar<T>(comandoSelect, parametros);
         }
@@ -91,30 +77,21 @@ namespace DynamicSQL
             List<T> listDynamic = new List<T>();
             AddParametro(SqlComando, parametros);
             SqlComando.CommandText = comando;
-            SqlDataReader sqldr = SqlComando.ExecuteReader();
-
-            while (sqldr.Read())
+            using (SqlDataReader sqldr = SqlComando.ExecuteReader())
             {
-                T t = new T();
 
-                for (int i = 0; i < sqldr.FieldCount; i++)
+                while (sqldr.Read())
                 {
-                    Type type = t.GetType();
-                    PropertyInfo prop = type.GetProperty(sqldr.GetName(i));
+                    T t = new T();
 
-                    if (prop != null)
+                    for (int i = 0; i < sqldr.FieldCount; i++)
                     {
-                        if (!DBNull(sqldr.GetValue(i), prop.PropertyType))
-                        {
-                            prop.SetValue(t, sqldr.GetValue(i), null);
-                        }
+                        SetValorCampo(t, sqldr.GetName(i), sqldr.GetValue(i));
                     }
+
+                    listDynamic.Add(t);
                 }
-
-                listDynamic.Add(t);
             }
-
-            sqldr.Close();
             return listDynamic;
         }
 
@@ -130,34 +107,107 @@ namespace DynamicSQL
         }
         #endregion
 
-        public int Inserir<T>(object entidade, object parametro)
+        #region Insert
+        public int Inserir(object entidade)
         {
-            string strInsert = "";
+            int linhaAfetada = 0;
+            int? id = null;
+            string strInsert = "", nomeCampoIdentity;
             if (entidade != null)
             {
-                strInsert = $"INSERT INTO ({parametro.JuntarParametro(", ")}) values ({parametro.JuntarParametro(", ", "@")})";
+                nomeCampoIdentity = GetNomeIncremento(entidade);
+                strInsert = $"INSERT INTO {GetNomeTabela(entidade)} ({entidade.ConcatenarCampos(", ", nomeCampoIdentity)}) values ({entidade.ConcatenarCampos(", ", nomeCampoIdentity, "insert")})";
+                AddParametro(SqlComando, entidade, nomeCampoIdentity);
+
+                if (string.IsNullOrWhiteSpace(nomeCampoIdentity))
+                {
+                    SqlComando.CommandText = strInsert;
+                    linhaAfetada = SqlComando.ExecuteNonQuery();
+                }
+                else
+                {
+                    strInsert += "; SELECT SCOPE_IDENTITY()";
+                    SqlComando.CommandText = strInsert;
+                    object obj = SqlComando.ExecuteScalar();
+
+                    if (obj != null)
+                    {
+                        id = int.Parse(obj.ToString());
+                        linhaAfetada = 1;
+                        SetValorCampo(entidade, nomeCampoIdentity, id);
+                    }
+                }
             }
 
-            SqlComando.CommandText = strInsert;
-
-            return SqlComando.ExecuteNonQuery();
+            return linhaAfetada;
         }
 
-        public int Alterar<T>(string Comando)
+        public int Inserir(string comando)
         {
-            SqlComando.CommandText = Comando;
-            return SqlComando.ExecuteNonQuery();
+            comando += "; SELECT SCOPE_IDENTITY()";
+            SqlComando.CommandText = comando;
+
+            object obj = SqlComando.ExecuteScalar();
+
+            if (obj != null)
+            {
+                return int.Parse(obj.ToString());
+            }
+
+            return 0;
         }
 
+        public int Inserir(string tabela, object parametros)
+        {
+            string strInsert = "";
+            AddParametro(SqlComando, parametros);
+            strInsert = $"INSERT INTO {tabela} ({parametros.ConcatenarCampos(", ", "")}) values ({parametros.ConcatenarCampos(", ", "", "insert")})";
+            return Inserir(strInsert);
+        }
+        #endregion
+
+        #region Update
+        public int Alterar(object entidade)
+        {
+            int linhaAfetada = 0;
+            string strUpdate = "", nomeCampoIdentity;
+
+            if (entidade != null)
+            {
+                nomeCampoIdentity = GetNomeIncremento(entidade);
+                AddParametro(SqlComando, entidade);                
+                strUpdate = $"UPDATE {GetNomeTabela(entidade)} SET {entidade.ConcatenarCampos(", ", nomeCampoIdentity, "update")} WHERE {nomeCampoIdentity} = @{nomeCampoIdentity}";
+                SqlComando.CommandText = strUpdate;
+
+                linhaAfetada = SqlComando.ExecuteNonQuery();
+            }
+
+            return linhaAfetada;
+        }
+
+        public int Alterar(string comando)
+        {
+            int linhaAfetada = 0;
+
+            SqlComando.CommandText = comando;
+            linhaAfetada = SqlComando.ExecuteNonQuery();
+
+            return linhaAfetada;
+        }
+
+        public int Alterar(string tabela, object parametros, string clausulaWhere)
+        {
+            string strUpdate = "";
+            AddParametro(SqlComando, parametros);
+            strUpdate = $"UPDATE {tabela} SET {parametros.ConcatenarCampos(", ", "", "update")} {clausulaWhere}";
+            return Alterar(strUpdate);
+        }
+
+        #endregion
         public int Apagar(string comando)
         {
             SqlComando.CommandText = comando;
             return SqlComando.ExecuteNonQuery();
-        }
-
-        private bool DBNull(object value, object defaultValue)
-        {
-            return value == Convert.DBNull;
         }
 
         public void Dispose()

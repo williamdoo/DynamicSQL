@@ -14,7 +14,7 @@ Conexao conexao = new Conexao("Server=NomeServido;Database=BancoDados;User Id=Us
 
 Nesse momento temos um objeto de conexão, ela ainda não foi aberta uma comunicação com o banco, ela será aberta quando iniciar as operações de SQL.
 
-A parti desse momento você pode fazer a operações utilizando o método AbrirComandoSQL()
+A partir desse momento você pode fazer a operações utilizando o método AbrirComandoSQL()
 
 **OBS.:
 Para fazer as operações no banco temos que seguir uma regra básica de sempre utilizar o using para abri um comando SQL**

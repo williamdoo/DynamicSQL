@@ -20,14 +20,19 @@ namespace DynamicSQL.Libs
                 {
                     if (item.Name != ignoreCampo)
                     {
-                        sqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
+                        SqlParameter param = new SqlParameter();
+
+                        param.ParameterName = $"@{item.Name}";
+                        param.Value = (parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)?? DBNull.Value);
+
+                        sqlComando.Parameters.Add(param);
                     }
                 }
             }
         }
 
 
-        private static bool DBNull(object value, object defaultValue)
+        private static bool EDBNull(object value, object defaultValue)
         {
             return value == Convert.DBNull;
         }
@@ -39,7 +44,7 @@ namespace DynamicSQL.Libs
 
             if (propInfo != null)
             {
-                if (!DBNull(valor, propInfo.PropertyType))
+                if (!EDBNull(valor, propInfo.PropertyType))
                 {
                     propInfo.SetValue(obj, valor, null);
                 }

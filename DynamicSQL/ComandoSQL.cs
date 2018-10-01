@@ -172,12 +172,12 @@ namespace DynamicSQL
         public int Update(object entidade)
         {
             int linhaAfetada = 0;
-            string strUpdate = "", nomeCampoIdentity;
+            string strUpdate = "", nomeCampoChave;
             if (entidade != null)
             {
-                nomeCampoIdentity = GetNomeIncremento(entidade);
+                nomeCampoChave = GetNomeChavePrimaria(entidade);
                 AddParametro(SqlComando, entidade);                
-                strUpdate = $"UPDATE {GetNomeTabela(entidade)} SET {entidade.ConcatenarCampos(", ", nomeCampoIdentity, "update")} WHERE {nomeCampoIdentity} = @{nomeCampoIdentity}";
+                strUpdate = $"UPDATE {GetNomeTabela(entidade)} SET {entidade.ConcatenarCampos(", ", nomeCampoChave, "update")} WHERE {nomeCampoChave} = @{nomeCampoChave}";
                 SqlComando.CommandText = strUpdate;
 
                 linhaAfetada = SqlComando.ExecuteNonQuery();
@@ -211,13 +211,13 @@ namespace DynamicSQL
         public int Delete(object entidade)
         {            
             int linhaAfetada = 0;
-            string strDelete = "", nomeCampoIdentity;
+            string strDelete = "", nomeCampoChave;
 
             if (entidade != null)
             {
-                nomeCampoIdentity = GetNomeIncremento(entidade);
+                nomeCampoChave = GetNomeChavePrimaria(entidade);
                 AddParametro(SqlComando, entidade);
-                strDelete = $"DELETE FROM {GetNomeTabela(entidade)} WHERE {nomeCampoIdentity} = @{nomeCampoIdentity}";
+                strDelete = $"DELETE FROM {GetNomeTabela(entidade)} WHERE {nomeCampoChave} = @{nomeCampoChave}";
                 SqlComando.CommandText = strDelete;
 
                 linhaAfetada = SqlComando.ExecuteNonQuery();

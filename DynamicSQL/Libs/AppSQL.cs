@@ -61,7 +61,27 @@ namespace DynamicSQL.Libs
 
                 if (atributos.Length > 0)
                 {
-                    if (atributos[0].ChavePrimaria && atributos[0].Incremento)
+                    if (atributos[0].Incremento)
+                    {
+                        return item.Name;
+                    }
+                }
+            }
+
+            return "";
+        }
+
+        protected string GetNomeChavePrimaria<T>(T obj)
+        {
+            var param = obj.GetType().GetProperties();
+
+            foreach (var item in param)
+            {
+                CampoDB[] atributos = (CampoDB[])item.GetCustomAttributes(typeof(CampoDB), true);
+
+                if (atributos.Length > 0)
+                {
+                    if (atributos[0].ChavePrimaria)
                     {
                         return item.Name;
                     }

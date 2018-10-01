@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace DynamicSQL.Flags
 {
+    /// <summary>
+    /// Clase de enumeração de begin
+    /// </summary>
     public class EnumBegin
     {
+        /// <summary>
+        /// Enumeração do bengin transaction
+        /// </summary>
         [Flags]
         public enum Begin
         {

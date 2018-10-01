@@ -51,8 +51,8 @@
     <Compile Include="Extencoes\CampoDB.cs" />
     <Compile Include="Extencoes\TabelaDB.cs" />
     <Compile Include="Flags\EnumBegin.cs" />
-    <Compile Include="Libs\AppSQL.cs" />
-    <Compile Include="Libs\Conversor.cs" />
+    <Compile Include="Libs\AppDynamic.cs" />
+    <Compile Include="Libs\TipoSintaxe.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -8,20 +8,43 @@ using System.Threading.Tasks;
 
 namespace DynamicSQL
 {
-    public class Comando:AppSQL
+    /// <summary>
+    /// Classe que representa as instruções o T-SQL
+    /// </summary>
+    public class Comando:AppDynamic
     {
+        /// <summary>
+        /// Instrução do T-SQL ou amarzenamento de comando SQL no bando de dados
+        /// </summary>
         protected SqlCommand SqlComando { get; set; }
+        /// <summary>
+        /// Trasação realizado no bando de dados
+        /// </summary>
         protected SqlTransaction SqlTran { get; set; }
 
+        /// <summary>
+        /// Inicia uma transação no banco de dados
+        /// </summary>
         protected void BeginTransation()
         {
             SqlTran = SqlComando.Connection.BeginTransaction();
             SqlComando.Transaction = SqlTran;
         }
 
-        protected bool BeginTransationAberto()
+        /// <summary>
+        /// Confirma a transação realizada no bando de dados
+        /// </summary>
+        public void Commit()
         {
-            return SqlTran != null;
+            SqlTran.Commit();
+        }
+
+        /// <summary>
+        /// Retroceder uma transação que foi feita no bando de dados e que está no estado pendente
+        /// </summary>
+        public void Rollback()
+        {
+            SqlTran.Rollback();
         }
     }
 }

@@ -29,7 +29,12 @@ namespace DynamicSQL.Libs
                 {
                     if (item.Name != ignoreCampo)
                     {
-                        sqlComando.Parameters.Add(new SqlParameter($"@{item.Name}", parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)));
+                        SqlParameter param = new SqlParameter();
+
+                        param.ParameterName = $"@{item.Name}";
+                        param.Value = (parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)?? DBNull.Value);
+
+                        sqlComando.Parameters.Add(param);
                     }
                 }
             }
@@ -41,7 +46,7 @@ namespace DynamicSQL.Libs
         /// </summary>
         /// <param name="valor">Valo do objeto SqlDataReader</param>
         /// <returns>Retorna true caso o valor está vazio, caso contrário false.</returns>
-        private static bool DBNull(object valor)
+        private static bool EDBNull(object value, object defaultValue)
         {
             return valor == Convert.DBNull;
         }
@@ -59,7 +64,7 @@ namespace DynamicSQL.Libs
 
             if (propInfo != null)
             {
-                if (!DBNull(valor))
+                if (!EDBNull(valor, propInfo.PropertyType))
                 {
                     propInfo.SetValue(obj, valor, null);
                 }
@@ -82,7 +87,27 @@ namespace DynamicSQL.Libs
 
                 if (atributos.Length > 0)
                 {
-                    if (atributos[0].ChavePrimaria && atributos[0].Incremento)
+                    if (atributos[0].Incremento)
+                    {
+                        return item.Name;
+                    }
+                }
+            }
+
+            return "";
+        }
+
+        protected string GetNomeChavePrimaria<T>(T obj)
+        {
+            var param = obj.GetType().GetProperties();
+
+            foreach (var item in param)
+            {
+                CampoDB[] atributos = (CampoDB[])item.GetCustomAttributes(typeof(CampoDB), true);
+
+                if (atributos.Length > 0)
+                {
+                    if (atributos[0].ChavePrimaria)
                     {
                         return item.Name;
                     }

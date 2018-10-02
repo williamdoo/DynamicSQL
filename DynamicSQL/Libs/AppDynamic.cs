@@ -46,7 +46,7 @@ namespace DynamicSQL.Libs
         /// </summary>
         /// <param name="valor">Valo do objeto SqlDataReader</param>
         /// <returns>Retorna true caso o valor está vazio, caso contrário false.</returns>
-        private static bool EDBNull(object value, object defaultValue)
+        private static bool EDBNull(object valor)
         {
             return valor == Convert.DBNull;
         }
@@ -64,7 +64,7 @@ namespace DynamicSQL.Libs
 
             if (propInfo != null)
             {
-                if (!EDBNull(valor, propInfo.PropertyType))
+                if (!EDBNull(valor))
                 {
                     propInfo.SetValue(obj, valor, null);
                 }
@@ -72,7 +72,7 @@ namespace DynamicSQL.Libs
         }
 
         /// <summary>
-        /// Obtem o nome do campo de uma entidade definida com o atributo do tipo chave primário e incremento
+        /// Obtem o nome do campo de uma entidade definida com o valor true no atributo do tipo incremento
         /// </summary>
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
@@ -97,6 +97,12 @@ namespace DynamicSQL.Libs
             return "";
         }
 
+        /// <summary>
+        /// Obtem o nome do campo de uma entidade definida com o valor true no atributo do tipo chave primária
+        /// </summary>
+        /// <typeparam name="T">Tipo da entidade</typeparam>
+        /// <param name="obj">Objeto da entidade</param>
+        /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna vazio</returns>
         protected string GetNomeChavePrimaria<T>(T obj)
         {
             var param = obj.GetType().GetProperties();

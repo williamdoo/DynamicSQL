@@ -223,7 +223,7 @@ namespace DynamicSQL
             {
                 nomeCampoChave = GetNomeChavePrimaria(entidade);
                 AddParametro(SqlComando, entidade);                
-                strUpdate = $"UPDATE {GetNomeTabela(entidade)} SET {entidade.FormatarSintaxe(", ", nomeCampoIdentity, "update")} WHERE {nomeCampoIdentity} = @{nomeCampoIdentity}";
+                strUpdate = $"UPDATE {GetNomeTabela(entidade)} SET {entidade.FormatarSintaxe(", ", nomeCampoChave, "update")} WHERE {nomeCampoChave} = @{nomeCampoChave}";
                 SqlComando.CommandText = strUpdate;
 
                 linhaAfetada = SqlComando.ExecuteNonQuery();

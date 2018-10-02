@@ -140,7 +140,6 @@ namespace TesteDynamicSQL
             using (ComandoSQL comando = conexao.AbrirComandoSQL())
             {
                 int id = comando.Insert("CLIENTES", new { NOME_CLI = "Vania", CPF_CLI = "12345678900", DATANASC_CLI = "1992-01-14", TELEFONE_CLI = "11987654321" });
-                comando.Commit();
             }
         }
 

@@ -17,21 +17,8 @@ namespace TesteDynamicSQL
         private static Conexao conexao;
         static void Main(string[] args)
         {
-            conexao = new Conexao("Server=NomeServido;Database=BancoDados;User Id=Usuario;Password=Senha;");
-            //CarregarDadosDataSet();
-            //CarregarDadosClasseTipada();
-            //CarregarTodosDadosClasseTipada();
-            //CarregarDadosEspecificoClasseTipada();
-            InserirTelefoneBegin();
-            //InserirTelefoneBegin();
-            //UpdateTelefone();
-            //UpdateTelefoneBegin();
-            //UpdateTelefone2();
-            //UpdateTelefoneTipado();
-            //DeleteTelefone();
-            //DeleteTelefoneBegin();
-            //DeleteTelefone2();
-            DeleteTelefoneTipado();
+            conexao = new Conexao("Server=NomeServidor;Database=BancoDados;User Id=Usuario;Password=Senha;");
+            CarregarDadosClasseTipada();
             Console.ReadKey();
         }
 
@@ -82,7 +69,7 @@ namespace TesteDynamicSQL
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
         }
 
-        private static void InserirTelefone()
+        private static void InserirCliente()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL())
             {
@@ -99,7 +86,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void InserirTelefoneBegin()
+        private static void InserirClienteBegin()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
@@ -135,7 +122,7 @@ namespace TesteDynamicSQL
         }
 
 
-        private static void InserirTelefoneComando()
+        private static void InserirClienteComando()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL())
             {
@@ -144,7 +131,7 @@ namespace TesteDynamicSQL
         }
 
 
-        private static void UpdateTelefone()
+        private static void UpdateCliente()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL())
             {
@@ -152,7 +139,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void UpdateTelefoneBegin()
+        private static void UpdateClienteBegin()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
@@ -161,7 +148,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void UpdateTelefone2()
+        private static void UpdateCliente2()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
@@ -170,7 +157,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void UpdateTelefoneTipado()
+        private static void UpdateClienteTipado()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
@@ -182,7 +169,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void DeleteTelefone()
+        private static void DeleteCliente()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL())
             {
@@ -190,7 +177,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void DeleteTelefoneBegin()
+        private static void DeleteClienteBegin()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
@@ -199,7 +186,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void DeleteTelefone2()
+        private static void DeleteCliente2()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
@@ -208,7 +195,7 @@ namespace TesteDynamicSQL
             }
         }
 
-        private static void DeleteTelefoneTipado()
+        private static void DeleteClienteTipado()
         {
             using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {

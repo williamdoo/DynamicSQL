@@ -27,7 +27,7 @@ namespace DynamicSQL.Libs
             {
                 foreach (var item in parameter.GetType().GetProperties())
                 {
-                    if (item.Name.ToLower() != ignoreColumn.ToLower())
+                    if (item.Name.ToLower() != (ignoreColumn?.ToLower()??""))
                     {
                         SqlParameter param = new SqlParameter();
 

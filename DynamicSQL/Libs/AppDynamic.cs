@@ -32,7 +32,7 @@ namespace DynamicSQL.Libs
                         SqlParameter param = new SqlParameter();
 
                         param.ParameterName = $"@{item.Name}";
-                        param.Value = (parameter.GetType().GetProperty(item.Name, BindingFlags.IgnoreCase).GetValue(parameter, null)?? DBNull.Value);
+                        param.Value = (parameter.GetType().GetProperty(item.Name).GetValue(parameter, null)?? DBNull.Value);
 
                         sqlCommand.Parameters.Add(param);
                     }
@@ -60,7 +60,7 @@ namespace DynamicSQL.Libs
         protected void SetValue(object obj, string nameColumn, object value)
         {
             Type type = obj.GetType();
-            PropertyInfo propInfo = type.GetProperty(nameColumn, BindingFlags.IgnoreCase);
+            PropertyInfo propInfo = type.GetProperty(nameColumn, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
             if (propInfo != null)
             {

@@ -72,7 +72,7 @@ namespace DynamicSQL.Libs
         }
 
         /// <summary>
-        /// Obtem o nome do campo de uma entidade definida com o valor true no atributo do tipo incremento
+        /// Obtem o nome da coluna de uma entidade definida com o valor true no atributo do tipo incremento
         /// </summary>
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>

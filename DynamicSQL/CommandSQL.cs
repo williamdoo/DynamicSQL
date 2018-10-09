@@ -141,7 +141,7 @@ namespace DynamicSQL
             string strInsert = "", nomeCampoIdentity;
             if (entity != null)
             {
-                nomeCampoIdentity = GetNameTable(entity);
+                nomeCampoIdentity = GetNameIncrement(entity);
                 strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nomeCampoIdentity)}) values ({entity.FormatSintaxe(", ", nomeCampoIdentity, "insert")})";
                 AddParameter(SqlCommand, entity, nomeCampoIdentity);
 

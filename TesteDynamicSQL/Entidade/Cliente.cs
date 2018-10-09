@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace TesteDynamicSQL.Entidade
 {
-    [TabelaDB(Nome = "CLIENTES")]
+    [Table(Name = "CLIENTES")]
     public class Cliente
     {
-        [CampoDB(ChavePrimaria = true, Incremento =true)]
+        [Column(Primarykey =  true, Increment  =true)]
         public int ID_CLI { get; set; }
         public string NOME_CLI { get; set; }
         public string CPF_CLI { get; set; }

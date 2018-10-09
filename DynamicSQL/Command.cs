@@ -11,12 +11,12 @@ namespace DynamicSQL
     /// <summary>
     /// Classe que representa as instruções o T-SQL
     /// </summary>
-    public class Comando:AppDynamic
+    public class Command:AppDynamic
     {
         /// <summary>
         /// Instrução do T-SQL ou amarzenamento de comando SQL no bando de dados
         /// </summary>
-        protected SqlCommand SqlComando { get; set; }
+        protected SqlCommand SqlCommand { get; set; }
         /// <summary>
         /// Trasação realizado no bando de dados
         /// </summary>
@@ -27,8 +27,8 @@ namespace DynamicSQL
         /// </summary>
         protected void BeginTransation()
         {
-            SqlTran = SqlComando.Connection.BeginTransaction();
-            SqlComando.Transaction = SqlTran;
+            SqlTran = SqlCommand.Connection.BeginTransaction();
+            SqlCommand.Transaction = SqlTran;
         }
 
         /// <summary>

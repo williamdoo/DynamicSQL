@@ -17,24 +17,24 @@ namespace DynamicSQL.Libs
         /// <summary>
         /// Adicionar parâmetros no SQL Command
         /// </summary>
-        /// <param name="sqlComando">Obejto SqlCommand</param>
-        /// <param name="parametro">Parâmetro que serão adicionado</param>
-        /// <param name="ignoreCampo">Campo que não será adicionado ao parÂmetro</param>
-        protected void AddParametro(SqlCommand sqlComando, object parametro, string ignoreCampo=null)
+        /// <param name="sqlCommand">Obejto SqlCommand</param>
+        /// <param name="parameter">Parâmetro que serão adicionado</param>
+        /// <param name="ignoreColumn">Coluna que não será adicionado ao parâmetro</param>
+        protected void AddParameter(SqlCommand sqlCommand, object parameter, string ignoreColumn=null)
         {
-            sqlComando.Parameters.Clear();
-            if (parametro != null)
+            sqlCommand.Parameters.Clear();
+            if (parameter != null)
             {
-                foreach (var item in parametro.GetType().GetProperties())
+                foreach (var item in parameter.GetType().GetProperties())
                 {
-                    if (item.Name != ignoreCampo)
+                    if (item.Name.ToLower() != ignoreColumn.ToLower())
                     {
                         SqlParameter param = new SqlParameter();
 
                         param.ParameterName = $"@{item.Name}";
-                        param.Value = (parametro.GetType().GetProperty(item.Name).GetValue(parametro, null)?? DBNull.Value);
+                        param.Value = (parameter.GetType().GetProperty(item.Name, BindingFlags.IgnoreCase).GetValue(parameter, null)?? DBNull.Value);
 
-                        sqlComando.Parameters.Add(param);
+                        sqlCommand.Parameters.Add(param);
                     }
                 }
             }
@@ -46,7 +46,7 @@ namespace DynamicSQL.Libs
         /// </summary>
         /// <param name="valor">Valo do objeto SqlDataReader</param>
         /// <returns>Retorna true caso o valor está vazio, caso contrário false.</returns>
-        private static bool EDBNull(object valor)
+        private static bool IsDBNull(object valor)
         {
             return valor == Convert.DBNull;
         }
@@ -55,18 +55,18 @@ namespace DynamicSQL.Libs
         /// Setar o valor em um objeto
         /// </summary>
         /// <param name="obj">Objeto que sera setado o valor</param>
-        /// <param name="nomeCampo">Nome da prorpiedade do objeto que recebe o valor</param>
-        /// <param name="valor">Valor que será setado no objeto</param>
-        protected void SetValorCampo(object obj, string nomeCampo, object valor)
+        /// <param name="nameColumn">Nome da prorpiedade do objeto que recebe o valor</param>
+        /// <param name="value">Valor que será setado no objeto</param>
+        protected void SetValue(object obj, string nameColumn, object value)
         {
             Type type = obj.GetType();
-            PropertyInfo propInfo = type.GetProperty(nomeCampo);
+            PropertyInfo propInfo = type.GetProperty(nameColumn, BindingFlags.IgnoreCase);
 
             if (propInfo != null)
             {
-                if (!EDBNull(valor))
+                if (!IsDBNull(value))
                 {
-                    propInfo.SetValue(obj, valor, null);
+                    propInfo.SetValue(obj, value, null);
                 }
             }
         }
@@ -77,17 +77,17 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna vazio</returns>
-        protected string GetNomeIncremento<T>(T obj)
+        protected string GetNameIncrement<T>(T obj)
         {
             var param = obj.GetType().GetProperties();
 
             foreach (var item in param)
             {
-                CampoDB[] atributos = (CampoDB[])item.GetCustomAttributes(typeof(CampoDB), true);
+                Column[] atributos = (Column[])item.GetCustomAttributes(typeof(Column), true);
 
                 if (atributos.Length > 0)
                 {
-                    if (atributos[0].Incremento)
+                    if (atributos[0].Increment)
                     {
                         return item.Name;
                     }
@@ -103,17 +103,17 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna vazio</returns>
-        protected string GetNomeChavePrimaria<T>(T obj)
+        protected string GetNamePrimaryKey<T>(T obj)
         {
             var param = obj.GetType().GetProperties();
 
             foreach (var item in param)
             {
-                CampoDB[] atributos = (CampoDB[])item.GetCustomAttributes(typeof(CampoDB), true);
+                Column[] atributos = (Column[])item.GetCustomAttributes(typeof(Column), true);
 
                 if (atributos.Length > 0)
                 {
-                    if (atributos[0].ChavePrimaria)
+                    if (atributos[0].Primarykey)
                     {
                         return item.Name;
                     }
@@ -129,13 +129,13 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome da tabela, caso não encontre retonra vazio</returns>
-        public static string GetNomeTabela<T>(T obj)
+        public static string GetNameTable<T>(T obj)
         {
-            TabelaDB[] atributos = (TabelaDB[])obj.GetType().GetCustomAttributes(typeof(TabelaDB), true);
+            Table[] atributos = (Table[])obj.GetType().GetCustomAttributes(typeof(Table), true);
 
             if (atributos.Length > 0)
             {
-                return atributos[0].Nome;
+                return atributos[0].Name;
             }
 
             return "";

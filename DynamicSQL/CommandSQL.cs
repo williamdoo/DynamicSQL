@@ -1,38 +1,33 @@
-﻿using DynamicSQL.Extencoes;
-using DynamicSQL.Flags;
+﻿using DynamicSQL.Flags;
 using DynamicSQL.Libs;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DynamicSQL
 {
     /// <summary>
     /// Classe para realiza as transações de operações no banco de dados
     /// </summary>
-    public class ComandoSQL : Comando, IDisposable
+    public class CommandSQL : Command, IDisposable
     {
         /// <summary>
         /// Obtem ou informa o tempo de espera da tentativa de execução de um comando (tempo em segundos)
         /// </summary>
         public int TimeOut
         {
-            get { return SqlComando.CommandTimeout; }
-            set { SqlComando.CommandTimeout = value; }
+            get { return SqlCommand.CommandTimeout; }
+            set { SqlCommand.CommandTimeout = value; }
         }
 
         /// <summary>
         /// Obtem ou informa o tipo de comando a ser executado
         /// </summary>
-        public System.Data.CommandType TipoComando
+        public System.Data.CommandType CommandType
         {
-            get { return SqlComando.CommandType; }                                                                  
-            set { SqlComando.CommandType = value; }
+            get { return SqlCommand.CommandType; }                                                                  
+            set { SqlCommand.CommandType = value; }
         }
 
         /// <summary>
@@ -40,11 +35,11 @@ namespace DynamicSQL
         /// </summary>
         /// <param name="con">Define um SqlConnection</param>
         /// <param name="beginTrans">Define o inicio de uma transação</param>
-        public ComandoSQL(SqlConnection con, EnumBegin.Begin beginTrans)
+        public CommandSQL(SqlConnection con, EnumBegin.Begin beginTrans)
         {
-            SqlComando = con.CreateCommand();
-            SqlComando.Connection = con;
-            SqlComando.CommandType = System.Data.CommandType.Text;
+            SqlCommand = con.CreateCommand();
+            SqlCommand.Connection = con;
+            SqlCommand.CommandType = System.Data.CommandType.Text;
 
             if(beginTrans == EnumBegin.Begin.BeginTransaction)
             {
@@ -61,44 +56,44 @@ namespace DynamicSQL
         public IList<T> GetAll<T>() where T : new()
         {
             T t = new T();
-            string comandoSelect = "";
-            SqlComando.Parameters.Clear();
-            comandoSelect = $"SELECT * FROM {GetNomeTabela(t)}";
+            string commSelect = "";
+            SqlCommand.Parameters.Clear();
+            commSelect = $"SELECT * FROM {GetNameTable(t)}";
 
-            return Select<T>(comandoSelect, null);
+            return Select<T>(commSelect, null);
         }
 
         /// <summary>
         /// Obtem uma lista de registro e atribui na entidade
         /// </summary>
         /// <typeparam name="T">Tipo de entidade</typeparam>
-        /// <param name="clausulaWhere">Cláusula where para filtrar as informações</param>
-        /// <param name="parametros">Parametro com os valores definido para filtrar as informações</param>
+        /// <param name="clauseWhere">Cláusula where para filtrar as informações</param>
+        /// <param name="parameters">Parametro com os valores definido para filtrar as informações</param>
         /// <returns>Retorna um IList do tipo da entidade com as informações do bando de dados</returns>
-        public IList<T> Get<T>(string clausulaWhere, object parametros) where T : new()
+        public IList<T> Get<T>(string clauseWhere, object parameters) where T : new()
         {
             T t = new T();
             string strSelect = "";
 
-            AddParametro(SqlComando, parametros);
-            strSelect = $"SELECT * FROM {GetNomeTabela(t)} WHERE {clausulaWhere.Trim()} ";
+            AddParameter(SqlCommand, parameters);
+            strSelect = $"SELECT * FROM {GetNameTable(t)} WHERE {clauseWhere.Trim()} ";
 
-            return Select<T>(strSelect, parametros);
+            return Select<T>(strSelect, parameters);
         }
 
         /// <summary>
         /// Obtem uma lista de registro e atribui na entidade
         /// </summary>
         /// <typeparam name="T">Tipo de entidade</typeparam>
-        /// <param name="comando">Camando de select</param>
-        /// <param name="parametros">Parametro com os valores definido no camando de select</param>
+        /// <param name="command">Camando de select</param>
+        /// <param name="parameters">Parametro com os valores definido no camando de select</param>
         /// <returns>Retorna um IList do tipo da entidade com as informações do bando de dados</returns>
-        public IList<T> Select<T>(string comando, object parametros=null) where T : new()
+        public IList<T> Select<T>(string command, object parameters=null) where T : new()
         {
             List<T> listDynamic = new List<T>();
-            AddParametro(SqlComando, parametros);
-            SqlComando.CommandText = comando;
-            using (SqlDataReader sqldr = SqlComando.ExecuteReader())
+            AddParameter(SqlCommand, parameters);
+            SqlCommand.CommandText = command;
+            using (SqlDataReader sqldr = SqlCommand.ExecuteReader())
             {
 
                 while (sqldr.Read())
@@ -107,7 +102,7 @@ namespace DynamicSQL
 
                     for (int i = 0; i < sqldr.FieldCount; i++)
                     {
-                        SetValorCampo(t, sqldr.GetName(i), sqldr.GetValue(i));
+                        SetValue(t, sqldr.GetName(i), sqldr.GetValue(i));
                     }
 
                     listDynamic.Add(t);
@@ -119,15 +114,15 @@ namespace DynamicSQL
         /// <summary>
         ///  Obtem uma lista de informações e atribui ao Data Set
         /// </summary>
-        /// <param name="comando">Camando de select</param>
+        /// <param name="command">Camando de select</param>
         /// <returns>Retorna um DataSet as informações do bando de dados</returns>
-        public DataSet Select(string comando)
+        public DataSet Select(string command)
         {
             DataSet ds = new DataSet();
 
-            SqlComando.Parameters.Clear();
-            SqlComando.CommandText = comando;
-            SqlDataAdapter sqlda = new SqlDataAdapter(SqlComando);
+            SqlCommand.Parameters.Clear();
+            SqlCommand.CommandText = command;
+            SqlDataAdapter sqlda = new SqlDataAdapter(SqlCommand);
             sqlda.Fill(ds);
             return ds;
         }
@@ -139,33 +134,33 @@ namespace DynamicSQL
         /// </summary>
         /// <param name="entidade">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Insert(object entidade)
+        public int Insert(object entity)
         {
             int linhaAfetada = 0;
             int? id = null;
             string strInsert = "", nomeCampoIdentity;
-            if (entidade != null)
+            if (entity != null)
             {
-                nomeCampoIdentity = GetNomeIncremento(entidade);
-                strInsert = $"INSERT INTO {GetNomeTabela(entidade)} ({entidade.FormatarSintaxe(", ", nomeCampoIdentity)}) values ({entidade.FormatarSintaxe(", ", nomeCampoIdentity, "insert")})";
-                AddParametro(SqlComando, entidade, nomeCampoIdentity);
+                nomeCampoIdentity = GetNameTable(entity);
+                strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nomeCampoIdentity)}) values ({entity.FormatSintaxe(", ", nomeCampoIdentity, "insert")})";
+                AddParameter(SqlCommand, entity, nomeCampoIdentity);
 
                 if (string.IsNullOrWhiteSpace(nomeCampoIdentity))
                 {
-                    SqlComando.CommandText = strInsert;
-                    linhaAfetada = SqlComando.ExecuteNonQuery();
+                    SqlCommand.CommandText = strInsert;
+                    linhaAfetada = SqlCommand.ExecuteNonQuery();
                 }
                 else
                 {
                     strInsert += "; SELECT SCOPE_IDENTITY()";
-                    SqlComando.CommandText = strInsert;
-                    object obj = SqlComando.ExecuteScalar();
+                    SqlCommand.CommandText = strInsert;
+                    object obj = SqlCommand.ExecuteScalar();
 
                     if (obj != null)
                     {
                         id = int.Parse(obj.ToString());
                         linhaAfetada = 1;
-                        SetValorCampo(entidade, nomeCampoIdentity, id);
+                        SetValue(entity, nomeCampoIdentity, id);
                     }
                 }
             }
@@ -176,15 +171,15 @@ namespace DynamicSQL
         /// <summary>
         /// Inserir um registro no bando de dado onde é informado o comando completo do insert 
         /// </summary>
-        /// <param name="entidade">Comando de insert com seus valoes definidos</param>
+        /// <param name="command">Comando de insert com seus valoes definidos</param>
         /// <returns>Retorna o valor do identity, caso não tenha retorna o valor O</returns>
-        public int Insert(string comando)
+        public int Insert(string command)
         {
-            comando += "; SELECT SCOPE_IDENTITY()";
-            SqlComando.Parameters.Clear();
-            SqlComando.CommandText = comando;
+            command += "; SELECT SCOPE_IDENTITY()";
+            SqlCommand.Parameters.Clear();
+            SqlCommand.CommandText = command;
 
-            object obj = SqlComando.ExecuteScalar();
+            object obj = SqlCommand.ExecuteScalar();
 
             if (obj != null)
             {
@@ -197,14 +192,14 @@ namespace DynamicSQL
         /// <summary>
         /// Inserir um registro no bando de dado onde é informado as informações básica do insert 
         /// </summary>
-        /// <param name="tabela">Nome da tabela do banco</param>
-        /// <param name="parametros">Parâmetro com os valores definido</param>
+        /// <param name="table">Nome da tabela do banco</param>
+        /// <param name="parameters">Parâmetro com os valores definido</param>
         /// <returns></returns>
-        public int Insert(string tabela, object parametros)
+        public int Insert(string table, object parameters)
         {
             string strInsert = "";
-            AddParametro(SqlComando, parametros);
-            strInsert = $"INSERT INTO {tabela} ({parametros.FormatarSintaxe(", ", "")}) values ({parametros.FormatarSintaxe(", ", "", "insert")})";
+            AddParameter(SqlCommand, parameters);
+            strInsert = $"INSERT INTO {table} ({parameters.FormatSintaxe(", ", "")}) values ({parameters.FormatSintaxe(", ", "", "insert")})";
             return Insert(strInsert);
         }
         #endregion
@@ -213,20 +208,20 @@ namespace DynamicSQL
         /// <summary>
         /// Atualiza o registro do bando de dados com as informaçoes de entidade
         /// </summary>
-        /// <param name="entidade">Objeto entidade da tabela</param>
+        /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Update(object entidade)
+        public int Update(object entity)
         {
             int linhaAfetada = 0;
             string strUpdate = "", nomeCampoChave;
-            if (entidade != null)
+            if (entity != null)
             {
-                nomeCampoChave = GetNomeChavePrimaria(entidade);
-                AddParametro(SqlComando, entidade);                
-                strUpdate = $"UPDATE {GetNomeTabela(entidade)} SET {entidade.FormatarSintaxe(", ", nomeCampoChave, "update")} WHERE {nomeCampoChave} = @{nomeCampoChave}";
-                SqlComando.CommandText = strUpdate;
+                nomeCampoChave = GetNamePrimaryKey(entity);
+                AddParameter(SqlCommand, entity);                
+                strUpdate = $"UPDATE {GetNameTable(entity)} SET {entity.FormatSintaxe(", ", nomeCampoChave, "update")} WHERE {nomeCampoChave} = @{nomeCampoChave}";
+                SqlCommand.CommandText = strUpdate;
 
-                linhaAfetada = SqlComando.ExecuteNonQuery();
+                linhaAfetada = SqlCommand.ExecuteNonQuery();
             }
 
             return linhaAfetada;
@@ -235,15 +230,15 @@ namespace DynamicSQL
         /// <summary>
         /// Atualiza os registros no bando de dado onde é informado o comando completo do update 
         /// </summary>
-        /// <param name="comando">Comando de update com seus valoes definidos</param>
+        /// <param name="command">Comando de update com seus valoes definidos</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Update(string comando)
+        public int Update(string command)
         {
             int linhaAfetada = 0;
 
-            SqlComando.Parameters.Clear();
-            SqlComando.CommandText = comando;
-            linhaAfetada = SqlComando.ExecuteNonQuery();
+            SqlCommand.Parameters.Clear();
+            SqlCommand.CommandText = command;
+            linhaAfetada = SqlCommand.ExecuteNonQuery();
 
             return linhaAfetada;
         }
@@ -251,16 +246,16 @@ namespace DynamicSQL
         /// <summary>
         /// Atualiza os registros no bando de dado onde é informado as informações básica do update 
         /// </summary>
-        /// <param name="tabela">Nome da tabela do banco</param>
-        /// <param name="parametros">Parâmetro com os valores definido</param>
-        /// <param name="clausulaWhere">Cláusula where para filtrar as informações que serão alteradas</param>
+        /// <param name="table">Nome da tabela do banco</param>
+        /// <param name="parameters">Parâmetro com os valores definido</param>
+        /// <param name="clauseWhere">Cláusula where para filtrar as informações que serão alteradas</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Update(string tabela, object parametros, string clausulaWhere)
+        public int Update(string table, object parameters, string clauseWhere)
         {
             string strUpdate = "";
 
-            AddParametro(SqlComando, parametros);
-            strUpdate = $"UPDATE {tabela} SET {parametros.FormatarSintaxe(", ", "", "update")} WHERE {clausulaWhere}";
+            AddParameter(SqlCommand, parameters);
+            strUpdate = $"UPDATE {table} SET {parameters.FormatSintaxe(", ", "", "update")} WHERE {clauseWhere}";
             return Update(strUpdate);
         }
         #endregion
@@ -269,21 +264,21 @@ namespace DynamicSQL
         /// <summary>
         /// Apaga o registro do bando de dados com as informaçoes de entidade
         /// </summary>
-        /// <param name="entidade">Objeto entidade da tabela</param>
+        /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Delete(object entidade)
+        public int Delete(object entity)
         {            
             int linhaAfetada = 0;
             string strDelete = "", nomeCampoChave;
 
-            if (entidade != null)
+            if (entity != null)
             {
-                nomeCampoChave = GetNomeChavePrimaria(entidade);
-                AddParametro(SqlComando, entidade);
-                strDelete = $"DELETE FROM {GetNomeTabela(entidade)} WHERE {nomeCampoChave} = @{nomeCampoChave}";
-                SqlComando.CommandText = strDelete;
+                nomeCampoChave = GetNamePrimaryKey(entity);
+                AddParameter(SqlCommand, entity);
+                strDelete = $"DELETE FROM {GetNameTable(entity)} WHERE {nomeCampoChave} = @{nomeCampoChave}";
+                SqlCommand.CommandText = strDelete;
 
-                linhaAfetada = SqlComando.ExecuteNonQuery();
+                linhaAfetada = SqlCommand.ExecuteNonQuery();
             }
 
             return linhaAfetada;
@@ -291,16 +286,16 @@ namespace DynamicSQL
 
         /// <summary>
         /// Apaga os registros no bando de dado onde é informado o comando completo do delete 
-        /// </summary>
-        /// <param name="comando">Comando de delete com seus valoes definido</param>
+        /// </summarycommand
+        /// <param name="command">Comando de delete com seus valoes definido</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Delete(string comando)
+        public int Delete(string command)
         {
             int linhaAfetada = 0;
 
-            SqlComando.Parameters.Clear();
-            SqlComando.CommandText = comando;
-            linhaAfetada = SqlComando.ExecuteNonQuery();
+            SqlCommand.Parameters.Clear();
+            SqlCommand.CommandText = command;
+            linhaAfetada = SqlCommand.ExecuteNonQuery();
 
             return linhaAfetada;
         }
@@ -308,13 +303,13 @@ namespace DynamicSQL
         /// <summary>
         /// Apaga os registros no bando de dado onde é informado as informações básica do update 
         /// </summary>
-        /// <param name="tabela">Nome da tabela do banco</param>
-        /// <param name="clausulaWhere">Cláusula where para filtrar as informações que serão apagadas</param>
+        /// <param name="table">Nome da tabela do banco</param>
+        /// <param name="clauseWhere">Cláusula where para filtrar as informações que serão apagadas</param>
         /// <returns></returns>
-        public int Delete(string tabela, string clausulaWhere)
+        public int Delete(string table, string clauseWhere)
         {
             string strDelete = "";
-            strDelete = $"DELETE FROM {tabela} WHERE {clausulaWhere}";
+            strDelete = $"DELETE FROM {table} WHERE {clauseWhere}";
             return Delete(strDelete);
         }
         #endregion
@@ -324,9 +319,9 @@ namespace DynamicSQL
         /// </summary>
         public void Dispose()
         {
-            SqlComando.Parameters.Clear();
-            SqlComando.Dispose();
-            SqlComando.Connection.Close();
+            SqlCommand.Parameters.Clear();
+            SqlCommand.Dispose();
+            SqlCommand.Connection.Close();
             if (SqlTran != null)
             {
                 SqlTran.Dispose();

@@ -17,7 +17,7 @@ namespace DynamicSQL.Flags
         [Flags]
         public enum Begin
         {
-            Nenhum=0,
+            None=0,
             BeginTransaction = 1
         }
     }

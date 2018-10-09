@@ -11,7 +11,7 @@ namespace DynamicSQL
     /// <summary>
     /// Classe para abrir uma conexão com o banco de dados
     /// </summary>
-    public class Conexao
+    public class Connection
     {
         /// <summary>
         /// SqlConnection
@@ -20,7 +20,7 @@ namespace DynamicSQL
         /// <summary>
         /// Cadeia de informações para realizar a abertura de uma conexão com o banco de dados
         /// </summary>
-        public string ConexaoDataBase { get; private set; }
+        public string ConnectionDataBase { get; private set; }
         /// <summary>
         /// Obtem o tempo de espera da tentativa de abertura da conexão com o banco de dado (tempo em segundos)
         /// </summary>
@@ -28,41 +28,41 @@ namespace DynamicSQL
         /// <summary>
         /// Indicação do estado da conexão com o bando de dados
         /// </summary>
-        public System.Data.ConnectionState Estado { get { return sqlConn.State; } }
+        public System.Data.ConnectionState State { get { return sqlConn.State; } }
         /// <summary>
         /// Inicia uma nova instância com uma cadeia de informações para abrir uma conexão com o bando de dados
         /// </summary>
-        /// <param name="conexao"></param>
-        public Conexao(string conexao)
+        /// <param name="connection"></param>
+        public Connection(string connection)
         {
-            ConexaoDataBase = conexao;
-            sqlConn = new SqlConnection(ConexaoDataBase);
+            ConnectionDataBase = connection;
+            sqlConn = new SqlConnection(ConnectionDataBase);
         }
 
         /// <summary>
         /// Abrir a conexão com o bando de dados
         /// </summary>
         /// <returns></returns>
-        private bool Abrir()
+        private bool Open()
         {
-            if (Estado == System.Data.ConnectionState.Closed)
+            if (State == System.Data.ConnectionState.Closed)
             {
                 sqlConn.Open();
             }
-            return Estado == System.Data.ConnectionState.Open;
+            return State == System.Data.ConnectionState.Open;
         }
 
         /// <summary>
         /// Fecha a conexão com o banco de dados
         /// </summary>
         /// <returns></returns>
-        public bool Fechar()
+        public bool Close()
         {
-            if (Estado == System.Data.ConnectionState.Open)
+            if (State == System.Data.ConnectionState.Open)
             {
                 sqlConn.Close();
             }
-            return Estado == System.Data.ConnectionState.Closed;
+            return State == System.Data.ConnectionState.Closed;
         }
 
         /// <summary>
@@ -70,10 +70,10 @@ namespace DynamicSQL
         /// </summary>
         /// <param name="beginTrans">Abrir um ponto inicial de uma tranação</param>
         /// <returns>Retorna o ComandoSQL para realizar as operações no bando de dados.</returns>
-        public ComandoSQL AbrirComandoSQL(EnumBegin.Begin beginTrans = EnumBegin.Begin.Nenhum)
+        public CommandSQL OpenCommandSQL(EnumBegin.Begin beginTrans = EnumBegin.Begin.None)
         {
-            Abrir();
-            ComandoSQL com = new ComandoSQL(sqlConn, beginTrans);
+            Open();
+            CommandSQL com = new CommandSQL(sqlConn, beginTrans);
             return com;
         }
     }

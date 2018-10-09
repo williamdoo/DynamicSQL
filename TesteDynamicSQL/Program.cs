@@ -14,10 +14,10 @@ namespace TesteDynamicSQL
 {
     class Program
     {
-        private static Conexao conexao;
+        private static Connection conexao;
         static void Main(string[] args)
         {
-            conexao = new Conexao("Server=NomeServidor;Database=BancoDados;User Id=Usuario;Password=Senha;");
+            conexao = new Connection("Server=NomeServidor;Database=BancoDados;User Id=Usuario;Password=Senha;");
             CarregarDadosClasseTipada();
             Console.ReadKey();
         }
@@ -25,7 +25,7 @@ namespace TesteDynamicSQL
         private static void CarregarDadosDataSet()
         {
             Stopwatch sw = Stopwatch.StartNew();
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 DataSet dt = comando.Select("select * from Clientes");
             }
@@ -37,7 +37,7 @@ namespace TesteDynamicSQL
         {
             Stopwatch sw = Stopwatch.StartNew();
             List<Cliente> clientes;
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 clientes = comando.Select<Cliente>("select * from Clientes").ToList();
             }
@@ -49,7 +49,7 @@ namespace TesteDynamicSQL
         {
             Stopwatch sw = Stopwatch.StartNew();
             List<Cliente> cliente;
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 cliente = comando.GetAll<Cliente>().ToList();
             }
@@ -61,7 +61,7 @@ namespace TesteDynamicSQL
         {
             Stopwatch sw = Stopwatch.StartNew();
             List<Cliente> cliente;
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 cliente = comando.Get<Cliente>("NOME_CLI like @NOME_CLI", new { NOME_CLI = "Vania" }).ToList();
             }
@@ -71,7 +71,7 @@ namespace TesteDynamicSQL
 
         private static void InserirCliente()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 Cliente cliente = new Cliente()
                 {
@@ -88,7 +88,7 @@ namespace TesteDynamicSQL
 
         private static void InserirClienteBegin()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 try
                 {
@@ -124,7 +124,7 @@ namespace TesteDynamicSQL
 
         private static void InserirClienteComando()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 int id = comando.Insert("CLIENTES", new { NOME_CLI = "Vania", CPF_CLI = "12345678900", DATANASC_CLI = "1992-01-14", TELEFONE_CLI = "11987654321" });
             }
@@ -133,7 +133,7 @@ namespace TesteDynamicSQL
 
         private static void UpdateCliente()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 int linhasAlterada = comando.Update("update CLIENTES set TELEFONE_CLI = '119258741369' where ID_CLI = 123");
             }
@@ -141,7 +141,7 @@ namespace TesteDynamicSQL
 
         private static void UpdateClienteBegin()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 int linhasAlterada = comando.Update("update CLIENTES set TELEFONE_CLI = '119258741369' where ID_CLI = 123");
                 comando.Commit();
@@ -150,7 +150,7 @@ namespace TesteDynamicSQL
 
         private static void UpdateCliente2()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 int linhasAlterada = comando.Update("CLIENTES", new { TELEFONE_CLI = "119258741369" }, "ID_CLI = 123");
                 comando.Commit();
@@ -159,7 +159,7 @@ namespace TesteDynamicSQL
 
         private static void UpdateClienteTipado()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_CLI = 123 }).FirstOrDefault();
 
@@ -171,7 +171,7 @@ namespace TesteDynamicSQL
 
         private static void DeleteCliente()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL())
+            using (CommandSQL comando = conexao.OpenCommandSQL())
             {
                 int linhasAlterada = comando.Delete("delete from CLIENTES where ID_CLI = 123");
             }
@@ -179,7 +179,7 @@ namespace TesteDynamicSQL
 
         private static void DeleteClienteBegin()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 int linhasAlterada = comando.Delete("delete from CLIENTES where ID_CLI = 123");
                 comando.Commit();
@@ -188,7 +188,7 @@ namespace TesteDynamicSQL
 
         private static void DeleteCliente2()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 int linhasAlterada = comando.Delete("CLIENTES", "ID_CLI = 123");
                 comando.Commit();
@@ -197,7 +197,7 @@ namespace TesteDynamicSQL
 
         private static void DeleteClienteTipado()
         {
-            using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+            using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
                 Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_FONE = 123 }).FirstOrDefault();
 

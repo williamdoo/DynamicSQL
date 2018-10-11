@@ -14,11 +14,11 @@ namespace DynamicSQL
     public class Command:AppDynamic
     {
         /// <summary>
-        /// Instrução do T-SQL ou amarzenamento de comando SQL no bando de dados
+        /// Instrução do T-SQL ou amarzenamento de comando SQL no banco de dados
         /// </summary>
         protected SqlCommand SqlCommand { get; set; }
         /// <summary>
-        /// Trasação realizado no bando de dados
+        /// Trasação realizado no banco de dados
         /// </summary>
         protected SqlTransaction SqlTran { get; set; }
 
@@ -32,7 +32,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Confirma a transação realizada no bando de dados
+        /// Confirma a transação realizada no banco de dados
         /// </summary>
         public void Commit()
         {
@@ -40,7 +40,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Retroceder uma transação que foi feita no bando de dados e que está no estado pendente
+        /// Retroceder uma transação que foi feita no banco de dados e que está no estado pendente
         /// </summary>
         public void Rollback()
         {

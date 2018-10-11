@@ -51,7 +51,7 @@ namespace DynamicSQL
         /// Obtem uma lista de registro e atribui na entidade
         /// </summary>
         /// <typeparam name="T">Tipo de entidade</typeparam>
-        /// <returns>Retorna um IList do tipo da entidade com as informações do bando de dados</returns>
+        /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         #region Select
         public IList<T> GetAll<T>() where T : new()
         {
@@ -69,7 +69,7 @@ namespace DynamicSQL
         /// <typeparam name="T">Tipo de entidade</typeparam>
         /// <param name="clauseWhere">Cláusula where para filtrar as informações</param>
         /// <param name="parameters">Parametro com os valores definido para filtrar as informações</param>
-        /// <returns>Retorna um IList do tipo da entidade com as informações do bando de dados</returns>
+        /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         public IList<T> Get<T>(string clauseWhere, object parameters) where T : new()
         {
             T t = new T();
@@ -87,7 +87,7 @@ namespace DynamicSQL
         /// <typeparam name="T">Tipo de entidade</typeparam>
         /// <param name="command">Camando de select</param>
         /// <param name="parameters">Parametro com os valores definido no camando de select</param>
-        /// <returns>Retorna um IList do tipo da entidade com as informações do bando de dados</returns>
+        /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         public IList<T> Select<T>(string command, object parameters=null) where T : new()
         {
             List<T> listDynamic = new List<T>();
@@ -115,7 +115,7 @@ namespace DynamicSQL
         ///  Obtem uma lista de informações e atribui ao Data Set
         /// </summary>
         /// <param name="command">Camando de select</param>
-        /// <returns>Retorna um DataSet as informações do bando de dados</returns>
+        /// <returns>Retorna um DataSet as informações do banco de dados</returns>
         public DataSet Select(string command)
         {
             DataSet ds = new DataSet();
@@ -130,7 +130,7 @@ namespace DynamicSQL
 
         #region Insert
         /// <summary>
-        /// Inserir um registro no bando de dado com as informaçoes de entidade
+        /// Inserir um registro no banco de dado com as informaçoes de entidade
         /// </summary>
         /// <param name="entidade">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
@@ -169,7 +169,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Inserir um registro no bando de dado onde é informado o comando completo do insert 
+        /// Inserir um registro no banco de dado onde é informado o comando completo do insert 
         /// </summary>
         /// <param name="command">Comando de insert com seus valoes definidos</param>
         /// <returns>Retorna o valor do identity, caso não tenha retorna o valor O</returns>
@@ -190,7 +190,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Inserir um registro no bando de dado onde é informado as informações básica do insert 
+        /// Inserir um registro no banco de dado onde é informado as informações básica do insert 
         /// </summary>
         /// <param name="table">Nome da tabela do banco</param>
         /// <param name="parameters">Parâmetro com os valores definido</param>
@@ -206,7 +206,7 @@ namespace DynamicSQL
 
         #region Update
         /// <summary>
-        /// Atualiza o registro do bando de dados com as informaçoes de entidade
+        /// Atualiza o registro do banco de dados com as informaçoes de entidade
         /// </summary>
         /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
@@ -228,7 +228,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Atualiza os registros no bando de dado onde é informado o comando completo do update 
+        /// Atualiza os registros no banco de dado onde é informado o comando completo do update 
         /// </summary>
         /// <param name="command">Comando de update com seus valoes definidos</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
@@ -244,7 +244,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Atualiza os registros no bando de dado onde é informado as informações básica do update 
+        /// Atualiza os registros no banco de dado onde é informado as informações básica do update 
         /// </summary>
         /// <param name="table">Nome da tabela do banco</param>
         /// <param name="parameters">Parâmetro com os valores definido</param>
@@ -262,7 +262,7 @@ namespace DynamicSQL
 
         #region Delete
         /// <summary>
-        /// Apaga o registro do bando de dados com as informaçoes de entidade
+        /// Apaga o registro do banco de dados com as informaçoes de entidade
         /// </summary>
         /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
@@ -285,7 +285,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Apaga os registros no bando de dado onde é informado o comando completo do delete 
+        /// Apaga os registros no banco de dado onde é informado o comando completo do delete 
         /// </summarycommand
         /// <param name="command">Comando de delete com seus valoes definido</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
@@ -301,7 +301,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Apaga os registros no bando de dado onde é informado as informações básica do update 
+        /// Apaga os registros no banco de dado onde é informado as informações básica do update 
         /// </summary>
         /// <param name="table">Nome da tabela do banco</param>
         /// <param name="clauseWhere">Cláusula where para filtrar as informações que serão apagadas</param>
@@ -311,6 +311,69 @@ namespace DynamicSQL
             string strDelete = "";
             strDelete = $"DELETE FROM {table} WHERE {clauseWhere}";
             return Delete(strDelete);
+        }
+        #endregion
+
+        #region Procedure
+        /// <summary>
+        /// Executar Stored Procedure e atribui ao Data Set
+        /// </summary>
+        /// <param name="nameProcedure">Nome da precedure</param>
+        /// <param name="parameters">Parâmetro com os valores definido</param>
+        /// <returns>Retorna um DataSet as informações da Stored Procedure</returns>
+        public DataSet ExecuteStoredProcedure(string nameProcedure, object parameters=null)
+        {
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlda;
+            SqlCommand.CommandType = CommandType.StoredProcedure;
+
+            if (parameters != null)
+            {
+                AddParameter(SqlCommand, parameters);
+            }
+
+            SqlCommand.CommandText = nameProcedure;
+            sqlda = new SqlDataAdapter(SqlCommand);
+            sqlda.Fill(ds);
+
+            return ds;
+        }
+
+        /// <summary>
+        /// Executar Stored Procedure e atribui a uma entidade
+        /// </summary>
+        /// <typeparam name="T">Tipo de entidade</typeparam>
+        /// <param name="nameProcedure">Nome da precedure</param>
+        /// <param name="parameters">Parâmetro com os valores definido</param>
+        /// <returns>Retorna um IList do tipo da entidade com as informações da Stored Procedure</returns>
+        public IList<T> ExecuteStoredProcedure<T>(string nameProcedure, object parameters = null) where T:new()
+        {
+            List<T> listDynamic = new List<T>();
+
+            SqlCommand.CommandType = CommandType.StoredProcedure;
+
+            if (parameters != null)
+            {
+                AddParameter(SqlCommand, parameters);
+            }
+
+            SqlCommand.CommandText = nameProcedure;
+
+            using (SqlDataReader sqldr = SqlCommand.ExecuteReader())
+            {
+                while (sqldr.Read())
+                {
+                    T t = new T();
+
+                    for (int i = 0; i < sqldr.FieldCount; i++)
+                    {
+                        SetValue(t, sqldr.GetName(i), sqldr.GetValue(i));
+                    }
+
+                    listDynamic.Add(t);
+                }
+            }
+            return listDynamic;
         }
         #endregion
 

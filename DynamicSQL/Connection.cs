@@ -26,11 +26,11 @@ namespace DynamicSQL
         /// </summary>
         public int TimeOut { get { return sqlConn.ConnectionTimeout; } }
         /// <summary>
-        /// Indicação do estado da conexão com o bando de dados
+        /// Indicação do estado da conexão com o banco de dados
         /// </summary>
         public System.Data.ConnectionState State { get { return sqlConn.State; } }
         /// <summary>
-        /// Inicia uma nova instância com uma cadeia de informações para abrir uma conexão com o bando de dados
+        /// Inicia uma nova instância com uma cadeia de informações para abrir uma conexão com o banco de dados
         /// </summary>
         /// <param name="connection"></param>
         public Connection(string connection)
@@ -40,7 +40,7 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Abrir a conexão com o bando de dados
+        /// Abrir a conexão com o banco de dados
         /// </summary>
         /// <returns></returns>
         private bool Open()
@@ -66,10 +66,10 @@ namespace DynamicSQL
         }
 
         /// <summary>
-        /// Abrir uma nova transação de operações do bando de dados
+        /// Abrir uma nova transação de operações do banco de dados
         /// </summary>
         /// <param name="beginTrans">Abrir um ponto inicial de uma tranação</param>
-        /// <returns>Retorna o ComandoSQL para realizar as operações no bando de dados.</returns>
+        /// <returns>Retorna o ComandoSQL para realizar as operações no banco de dados.</returns>
         public CommandSQL OpenCommandSQL(EnumBegin.Begin beginTrans = EnumBegin.Begin.None)
         {
             Open();

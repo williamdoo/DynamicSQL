@@ -2,19 +2,19 @@
 
 Projeto para realizar as operações do SQL de uma forma simples em seus projetos, com ele pode ser utilizado os comandos SQL como já conhecemos e pode ser utilizado uma entidade de dados com a mesma estrutura de campos de uma tabela de seu banco.
 
-Inspirado no conceito de Micro ORM, ele não foi feito para ser um framework ORM e nem para facilitar os relacionamentos do banco de dados nas aplicações, o conceito aqui é ter desempenho em aplicações que utilizam bando de dados para fazer as operações de select, insert, updade e delete sem precisa digitar vários comandos de SQL.
+Inspirado no conceito de Micro ORM, ele não foi feito para ser um framework ORM e nem para facilitar os relacionamentos do banco de dados nas aplicações, o conceito aqui é ter desempenho em aplicações que utilizam banco de dados para fazer as operações de select, insert, updade e delete sem precisa digitar vários comandos de SQL.
 
 ### Criar uma conexão com o Banco 
 
-Para cria uma conexão com o banco de dado, devemos utilizar a classe Conexão e informar a cadeia de informações que faz a conexão com o banco de dados, segue o exemplo
+Para cria uma conexão com o banco de dado, devemos utilizar a classe Connection e informar a cadeia de informações que faz a conexão com o banco de dados, segue o exemplo
 
 ```C#
-Conexao conexao = new Conexao("Server=NomeServidor;Database=BancoDados;User Id=Usuario;Password=Senha;");
+Connection conexao = new Connection("Server=NomeServidor;Database=BancoDados;User Id=Usuario;Password=Senha;");
 ```
 
 Nesse momento temos um objeto de conexão, ela ainda não foi aberta uma comunicação com o banco, ela será aberta quando iniciar as operações de SQL.
 
-A partir desse momento você pode fazer as operações utilizando o método AbrirComandoSQL()
+A partir desse momento você pode fazer as operações utilizando o método OpenCommandSQL()
 
 **OBS.:
 Para fazer as operações no banco temos que seguir uma regra básica de sempre utilizar o using para abri um comando SQL**
@@ -26,7 +26,7 @@ Para fazer um comando select temos algumas possibilidades, mas vou mostrar pelo 
 **Exemplo 1.0**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     DataSet dt = comando.Select("select * from Clientes");
 }
@@ -38,10 +38,10 @@ Foi utilizado o método Select que será retornado um DataSet para fazer a manip
 Esse exemplo podemos retorna os dados com uma entidade, segue o exemplo da entidade
 
 ```C#
-[TabelaDB(Nome = "CLIENTES")]
+[Table(Name = "CLIENTES")]
 public class Cliente
 {
-    [CampoDB(ChavePrimaria = true, Incremento = true)]
+    [Column(PrimaryKey = true, Increment = true)]
     public int ID_CLI { get; set; }
     public string NOME_CLI { get; set; }
     public string CPF_CLI { get; set; }
@@ -50,7 +50,7 @@ public class Cliente
 }
 ```
 
-Veja que na classe foi criado um atributo **TabelaDB** com o Nome **CLIENTES**, esse nome é a Tabela do banco.
+Veja que na classe foi criado um atributo **Table** com o Nome **CLIENTES**, esse nome é a Tabela do banco.
 Também temos uma atribuição na propriedade ID_CLI que recebe dois atributos que vai definir que a propriedade é chave primária e ela é Incremento.
 
 Seguem um exemplo de como realizar um select utilizando uma entidade
@@ -59,7 +59,7 @@ Seguem um exemplo de como realizar um select utilizando uma entidade
 
 ```C#
 List<Cliente> clientes;
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     clientes = comando.Select<Cliente>("select * from Clientes").ToList();
 }
@@ -82,7 +82,7 @@ public class ConsultaComprasCliente
 }
 
 List<ConsultaComprasCliente> consulta;
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     consulta = comando.Select<ConsultaComprasCliente>("select 
 	    ID_CLI,
@@ -102,19 +102,19 @@ Temos outras duas formas mais simples de retornar os dados de uma tabela, nesse 
 
 ```C#
 List<Cliente> cliente;
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     cliente = comando.GetAll<Cliente>().ToList();
 }
 ```
 
-Foi utilizado o método GetAll para retornar um IList de todos os cliente.
+Foi utilizado o método GetAll para retornar um IList de todos os clientes.
 
 **Exemplo 3.1**
 
 ```C#
 List<Cliente> cliente;
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     cliente = comando.Get<Cliente>("NOME_CLI like @NOME_CLI", new { NOME_CLI = "Vania" }).ToList();
 }
@@ -129,7 +129,7 @@ Para inserir dados pode ser utiliza o conceito que estamos acostumados ou pela e
 **Exemplo 4.0**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     int id = comando.Insert("insert into CLIENTES (NOME_CLI, CPF_CLI, DATANASC_CLI, TELEFONE_CLI) values ('Vania', '12345678900', '1992-01-14', '11987654321')");
 }
@@ -142,7 +142,7 @@ Temos uma outra forma de inserir dados de um modo simplificado.
 **Exemplo 4.1**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     int id = comando.Insert("CLIENTES", new { NOME_CLI = "Vania", CPF_CLI = "12345678900", DATANASC_CLI = "1992-01-14", TELEFONE_CLI = "11987654321" });
     comando.Commit();
@@ -156,7 +156,7 @@ Podemos utilizar a entidade para inserir os dados como mostra nesse exemplo
 **Exemplo 4.2**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     Cliente cliente = new Cliente()
     {
@@ -173,12 +173,12 @@ using (ComandoSQL comando = conexao.AbrirComandoSQL())
 
 Com a entidade você cria um objeto e informa os dados necessários e passar no parâmetro do método Insert, se a tabela tiver um campo ID identity a entidade vai receber o valor na propriedade, quando você passar uma entidade no método Insert ele te retorna o número de linhas afetadas.
 
-Você deve estar se perguntando “Quando eu inserir mais de um registro e um desses registro der algum erro como que eu faço dar um rollback?”. Muito simples, no método AbrirComandoSQL é só passar um parâmetro de Begin Transaction como mostra nesse exemplo.
+Você deve estar se perguntando “Quando eu inserir mais de um registro e um desses registro der algum erro como que eu faço dar um rollback?”. Muito simples, no método OpenCommandSQL é só passar um parâmetro de Begin Transaction como mostra nesse exemplo.
 
 **Exemplo 4.3**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
 {
     try
     {
@@ -211,7 +211,7 @@ Para atualizar os dados pode ser utiliza o conceito que estamos acostumados ou p
 **Exemplo 5.0**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     int linhasAlterada = comando.Update("update CLIENTES set TELEFONE_CLI = '119258741369' where ID_CLI = 123");
 }
@@ -222,7 +222,7 @@ Foi utilizado o método Update passando o comando SQL Update, ele retorna os nú
 **Exemplo 5.1**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
 {
     int linhasAlterada = comando.Update("CLIENTES", new { TELEFONE_CLI = "119258741369" }, "ID_CLI = 123");
     comando.Commit();
@@ -234,7 +234,7 @@ Com o mesmo método Update você só precisa passar o nome da tabela e os parâm
 **Exemplo 5.2**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
 {
     Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_CLI = 123 }).FirstOrDefault();
 
@@ -253,7 +253,7 @@ Para apagar os dados pode ser utiliza o conceito que estamos acostumados ou pela
 **Exemplo 6.0**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL())
+using (CommandSQL comando = conexao.OpenCommandSQL())
 {
     int linhasAlterada = comando.Delete("delete from CLIENTES where ID_CLI = 123");
 }
@@ -264,7 +264,7 @@ Foi utilizado o método Delete passando o comando SQL Delete, ele retorna os nú
 **Exemplo 6.1**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
 {
     int linhasAlterada = comando.Delete("CLIENTES", "ID_CLI = 123");
     comando.Commit();
@@ -275,7 +275,7 @@ Com o mesmo método Delete você só precisa passar o nome da tabela e a cláusu
 **Exemplo 6.2**
 
 ```C#
-using (ComandoSQL comando = conexao.AbrirComandoSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
+using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
 {
     Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_FONE = 123 }).FirstOrDefault();
 

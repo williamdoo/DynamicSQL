@@ -14,6 +14,6 @@ namespace DynamicSQL.Extencoes
         /// <summary>
         /// Incremento da coluna da tabala do banco
         /// </summary>
-        public bool Increment { get; set; } = true;
+        public bool Increment { get; set; } = false;
     }
 }

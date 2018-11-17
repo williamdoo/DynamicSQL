@@ -58,14 +58,13 @@ namespace DynamicSQL
             T t = new T();
             string commSelect = "";
             SqlCommand.Parameters.Clear();
-            commSelect = $"SELECT * FROM {GetNameTable(t)}";
+            commSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)}";
 
             return Select<T>(commSelect, null);
         }
 
         /// <summary>
-        /// Obtem uma lista de registro e atribui na entidade
-        /// </summary>
+        /// Obtem uma lista de registro e atribui na entidades        /// </summary>
         /// <typeparam name="T">Tipo de entidade</typeparam>
         /// <param name="clauseWhere">Cláusula where para filtrar as informações</param>
         /// <param name="parameters">Parametro com os valores definido para filtrar as informações</param>
@@ -76,7 +75,7 @@ namespace DynamicSQL
             string strSelect = "";
 
             AddParameter(SqlCommand, parameters);
-            strSelect = $"SELECT * FROM {GetNameTable(t)} WHERE {clauseWhere.Trim()} ";
+            strSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)} WHERE {clauseWhere.Trim()} ";
 
             return Select<T>(strSelect, parameters);
         }
@@ -115,11 +114,12 @@ namespace DynamicSQL
         ///  Obtem uma lista de informações e atribui ao Data Set
         /// </summary>
         /// <param name="command">Camando de select</param>
+        /// <param name="parameters">Parametro com os valores definido no camando de select</param>
         /// <returns>Retorna um DataSet as informações do banco de dados</returns>
-        public DataSet Select(string command)
+        public DataSet Select(string command, object parameters = null)
         {
             DataSet ds = new DataSet();
-
+            AddParameter(SqlCommand, parameters);
             SqlCommand.Parameters.Clear();
             SqlCommand.CommandText = command;
             SqlDataAdapter sqlda = new SqlDataAdapter(SqlCommand);

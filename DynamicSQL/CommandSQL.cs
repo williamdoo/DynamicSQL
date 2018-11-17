@@ -132,7 +132,7 @@ namespace DynamicSQL
         /// <summary>
         /// Inserir um registro no banco de dado com as informaçoes de entidade
         /// </summary>
-        /// <param name="entidade">Objeto entidade da tabela</param>
+        /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Insert(object entity)
         {
@@ -167,6 +167,8 @@ namespace DynamicSQL
 
             return linhaAfetada;
         }
+
+
 
         /// <summary>
         /// Inserir um registro no banco de dado onde é informado o comando completo do insert 

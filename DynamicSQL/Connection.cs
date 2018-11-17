@@ -69,11 +69,13 @@ namespace DynamicSQL
         /// Abrir uma nova transação de operações do banco de dados
         /// </summary>
         /// <param name="beginTrans">Abrir um ponto inicial de uma tranação</param>
+        /// <param name="timeOut">Informa o tempo de espera da tentativa de execução de um comando (tempo em segundos) padrão 30 segundo</param>
         /// <returns>Retorna o ComandoSQL para realizar as operações no banco de dados.</returns>
-        public CommandSQL OpenCommandSQL(EnumBegin.Begin beginTrans = EnumBegin.Begin.None)
+        public CommandSQL OpenCommandSQL(EnumBegin.Begin beginTrans = EnumBegin.Begin.None, int timeOut=30)
         {
             Open();
             CommandSQL com = new CommandSQL(sqlConn, beginTrans);
+            com.TimeOut = timeOut;
             return com;
         }
     }

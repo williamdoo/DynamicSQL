@@ -10,7 +10,7 @@ namespace DynamicSQL.Extencoes
         /// <summary>
         /// Chave primária da coluna da tabala do banco
         /// </summary>
-        public bool Primarykey { get; set; } = true;
+        public bool Primarykey { get; set; } = false;
         /// <summary>
         /// Incremento da coluna da tabala do banco
         /// </summary>

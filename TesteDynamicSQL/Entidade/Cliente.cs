@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 namespace TesteDynamicSQL.Entidade
 {
     [Table(Name = "CLIENTES")]
-    public class Cliente
+    public class Cliente: MapEntity
     {
-        [Column(Primarykey =  true, Increment  =true)]
+        [Key(Increment = true)]
         public int ID_CLI { get; set; }
+        [Column(Name ="Teste")]
         public string NOME_CLI { get; set; }
         public string CPF_CLI { get; set; }
         public DateTime DATANASC_CLI { get; set; }

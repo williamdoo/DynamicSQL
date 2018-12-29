@@ -14,6 +14,7 @@ namespace DynamicSQL.Libs
     /// </summary>
     public class AppDynamic
     {
+        protected bool clearParameters = false;
         /// <summary>
         /// Adicionar parâmetros no SQL Command
         /// </summary>
@@ -23,6 +24,7 @@ namespace DynamicSQL.Libs
         protected void AddParameter(SqlCommand sqlCommand, object parameter, string ignoreColumn=null)
         {
             sqlCommand.Parameters.Clear();
+            clearParameters = true;
             if (parameter != null)
             {
                 foreach (var item in parameter.GetType().GetProperties())
@@ -83,7 +85,7 @@ namespace DynamicSQL.Libs
 
             foreach (var item in param)
             {
-                Column[] atributos = (Column[])item.GetCustomAttributes(typeof(Column), true);
+                MapEntity.Key[] atributos = (MapEntity.Key[])item.GetCustomAttributes(typeof(MapEntity.Key), true);
 
                 if (atributos.Length > 0)
                 {
@@ -109,11 +111,37 @@ namespace DynamicSQL.Libs
 
             foreach (var item in param)
             {
-                Column[] atributos = (Column[])item.GetCustomAttributes(typeof(Column), true);
+                MapEntity.Key[] atributos = (MapEntity.Key[])item.GetCustomAttributes(typeof(MapEntity.Key), true);
 
                 if (atributos.Length > 0)
                 {
                     if (atributos[0].Primarykey)
+                    {
+                        return item.Name;
+                    }
+                }
+            }
+
+            return "";
+        }
+
+        /// <summary>
+        /// Obtem o nome do campo de uma entidade definida com o valor
+        /// </summary>
+        /// <typeparam name="T">Tipo da entidade</typeparam>
+        /// <param name="obj">Objeto da entidade</param>
+        /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna o nome padrão do campos definido para entidade</returns>
+        protected string GetNameColumn<T>(T obj)
+        {
+            var param = obj.GetType().GetProperties();
+
+            foreach (var item in param)
+            {
+                MapEntity.Column[] atributos = (MapEntity.Column[])item.GetCustomAttributes(typeof(MapEntity.Column), true);
+
+                if (atributos.Length > 0)
+                {
+                    if (!string.IsNullOrEmpty(atributos[0].Name))
                     {
                         return item.Name;
                     }
@@ -131,7 +159,7 @@ namespace DynamicSQL.Libs
         /// <returns>Retorna o nome da tabela, caso não encontre retonra vazio</returns>
         public static string GetNameTable<T>(T obj)
         {
-            Table[] atributos = (Table[])obj.GetType().GetCustomAttributes(typeof(Table), true);
+            MapEntity.Table[] atributos = (MapEntity.Table[])obj.GetType().GetCustomAttributes(typeof(MapEntity.Table), true);
 
             if (atributos.Length > 0)
             {

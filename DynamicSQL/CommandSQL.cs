@@ -1,4 +1,5 @@
-﻿using DynamicSQL.Flags;
+﻿using DynamicSQL.Extencoes;
+using DynamicSQL.Flags;
 using DynamicSQL.Libs;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace DynamicSQL
         /// <typeparam name="T">Tipo de entidade</typeparam>
         /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         #region Select
-        public IList<T> GetAll<T>() where T : new()
+        public IList<T> GetAll<T>() where T : MapEntity, new()
         {
             T t = new T();
             string commSelect = "";
@@ -69,7 +70,7 @@ namespace DynamicSQL
         /// <param name="clauseWhere">Cláusula where para filtrar as informações</param>
         /// <param name="parameters">Parametro com os valores definido para filtrar as informações</param>
         /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
-        public IList<T> Get<T>(string clauseWhere, object parameters) where T : new()
+        public IList<T> Get<T>(string clauseWhere, object parameters) where T : MapEntity, new()
         {
             T t = new T();
             string strSelect = "";
@@ -134,7 +135,7 @@ namespace DynamicSQL
         /// </summary>
         /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Insert(object entity)
+        public int Insert<T>(T entity) where T: MapEntity
         {
             int linhaAfetada = 0;
             int? id = null;
@@ -178,12 +179,15 @@ namespace DynamicSQL
         public int Insert(string command)
         {
             command += "; SELECT SCOPE_IDENTITY()";
-            SqlCommand.Parameters.Clear();
+            if (!clearParameters)
+            {
+                SqlCommand.Parameters.Clear();
+            }
             SqlCommand.CommandText = command;
 
             object obj = SqlCommand.ExecuteScalar();
 
-            if (obj != null)
+            if (obj != null && !string.IsNullOrEmpty(obj.ToString()))
             {
                 return int.Parse(obj.ToString());
             }
@@ -212,7 +216,7 @@ namespace DynamicSQL
         /// </summary>
         /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Update(object entity)
+        public int Update<T>(T entity) where T: MapEntity
         {
             int linhaAfetada = 0;
             string strUpdate = "", nomeCampoChave;
@@ -238,7 +242,11 @@ namespace DynamicSQL
         {
             int linhaAfetada = 0;
 
-            SqlCommand.Parameters.Clear();
+            if (!clearParameters)
+            {
+                SqlCommand.Parameters.Clear();
+            }
+
             SqlCommand.CommandText = command;
             linhaAfetada = SqlCommand.ExecuteNonQuery();
 
@@ -255,7 +263,6 @@ namespace DynamicSQL
         public int Update(string table, object parameters, string clauseWhere)
         {
             string strUpdate = "";
-
             AddParameter(SqlCommand, parameters);
             strUpdate = $"UPDATE {table} SET {parameters.FormatSintaxe(", ", "", "update")} WHERE {clauseWhere}";
             return Update(strUpdate);
@@ -268,7 +275,7 @@ namespace DynamicSQL
         /// </summary>
         /// <param name="entity">Objeto entidade da tabela</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
-        public int Delete(object entity)
+        public int Delete<T>(T entity) where T : MapEntity
         {            
             int linhaAfetada = 0;
             string strDelete = "", nomeCampoChave;

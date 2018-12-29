@@ -17,7 +17,7 @@ namespace TesteDynamicSQL
         private static Connection conexao;
         static void Main(string[] args)
         {
-            conexao = new Connection("Server=DESKTOP-RU1PO3B;Database=VegasDesenv;User Id=VegasDesenv;Password=vegas1234;");
+            conexao = new Connection("Server=;Database=;User Id=;Password=;");
             InserirCliente();
             CarregarDadosClasseTipada();
             Console.ReadKey();

@@ -11,6 +11,7 @@ namespace DynamicSQL.Extencoes
         /// <summary>
         /// Classe para definir a tabela do banco de dados nos atributos
         /// </summary>
+        [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
         public class Table : Attribute
         {
             /// <summary>
@@ -21,6 +22,7 @@ namespace DynamicSQL.Extencoes
         /// <summary>
         /// Classe para definir os atrubutos dos campos da tabela do banco de dados.
         /// </summary>
+        [AttributeUsage(AttributeTargets.Property)]
         public class Key : Attribute
         {
             /// <summary>
@@ -36,6 +38,7 @@ namespace DynamicSQL.Extencoes
         /// <summary>
         /// Classe para definir os atrubutos dos campos da tabela do banco de dados.
         /// </summary>
+        [AttributeUsage(AttributeTargets.Property)]
         public class Column : Attribute
         {
             /// <summary>

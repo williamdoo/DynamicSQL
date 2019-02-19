@@ -73,8 +73,7 @@ namespace DynamicSQL
         public IList<T> Get<T>(string clauseWhere, object parameters) where T : MapEntity, new()
         {
             T t = new T();
-            string strSelect = "";
-
+            string strSelect;
             AddParameter(SqlCommand, parameters);
             strSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)} WHERE {clauseWhere.Trim()} ";
 
@@ -92,6 +91,7 @@ namespace DynamicSQL
         {
             List<T> listDynamic = new List<T>();
             AddParameter(SqlCommand, parameters);
+            SqlCommand.CommandType = System.Data.CommandType.Text;
             SqlCommand.CommandText = command;
             using (SqlDataReader sqldr = SqlCommand.ExecuteReader())
             {
@@ -145,9 +145,9 @@ namespace DynamicSQL
                 nomeCampoIdentity = GetNameIncrement(entity);
                 strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nomeCampoIdentity)}) values ({entity.FormatSintaxe(", ", nomeCampoIdentity, "insert")})";
                 AddParameter(SqlCommand, entity, nomeCampoIdentity);
-
+                SqlCommand.CommandType = System.Data.CommandType.Text;
                 if (string.IsNullOrWhiteSpace(nomeCampoIdentity))
-                {
+                {                    
                     SqlCommand.CommandText = strInsert;
                     linhaAfetada = SqlCommand.ExecuteNonQuery();
                 }
@@ -183,6 +183,7 @@ namespace DynamicSQL
             {
                 SqlCommand.Parameters.Clear();
             }
+            SqlCommand.CommandType = System.Data.CommandType.Text;
             SqlCommand.CommandText = command;
 
             object obj = SqlCommand.ExecuteScalar();
@@ -225,6 +226,7 @@ namespace DynamicSQL
                 nomeCampoChave = GetNamePrimaryKey(entity);
                 AddParameter(SqlCommand, entity);                
                 strUpdate = $"UPDATE {GetNameTable(entity)} SET {entity.FormatSintaxe(", ", nomeCampoChave, "update")} WHERE {nomeCampoChave} = @{nomeCampoChave}";
+                SqlCommand.CommandType = System.Data.CommandType.Text;
                 SqlCommand.CommandText = strUpdate;
 
                 linhaAfetada = SqlCommand.ExecuteNonQuery();
@@ -246,7 +248,7 @@ namespace DynamicSQL
             {
                 SqlCommand.Parameters.Clear();
             }
-
+            SqlCommand.CommandType = System.Data.CommandType.Text;
             SqlCommand.CommandText = command;
             linhaAfetada = SqlCommand.ExecuteNonQuery();
 
@@ -285,6 +287,7 @@ namespace DynamicSQL
                 nomeCampoChave = GetNamePrimaryKey(entity);
                 AddParameter(SqlCommand, entity);
                 strDelete = $"DELETE FROM {GetNameTable(entity)} WHERE {nomeCampoChave} = @{nomeCampoChave}";
+                SqlCommand.CommandType = System.Data.CommandType.Text;
                 SqlCommand.CommandText = strDelete;
 
                 linhaAfetada = SqlCommand.ExecuteNonQuery();
@@ -303,6 +306,7 @@ namespace DynamicSQL
             int linhaAfetada = 0;
 
             SqlCommand.Parameters.Clear();
+            SqlCommand.CommandType = System.Data.CommandType.Text;
             SqlCommand.CommandText = command;
             linhaAfetada = SqlCommand.ExecuteNonQuery();
 

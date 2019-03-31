@@ -11,7 +11,7 @@ namespace DynamicSQL.Extencoes
         /// <summary>
         /// Classe para definir a tabela do banco de dados nos atributos
         /// </summary>
-        [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+        [AttributeUsage(AttributeTargets.Class)]
         public class Table : Attribute
         {
             /// <summary>

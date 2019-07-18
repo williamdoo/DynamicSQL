@@ -31,10 +31,11 @@ namespace DynamicSQL.Libs
                 {
                     if (item.Name.ToLower() != (ignoreColumn?.ToLower()??""))
                     {
-                        SqlParameter param = new SqlParameter();
-
-                        param.ParameterName = $"@{item.Name}";
-                        param.Value = (parameter.GetType().GetProperty(item.Name).GetValue(parameter, null)?? DBNull.Value);
+                        SqlParameter param = new SqlParameter
+                        {
+                            ParameterName = $"@{item.Name}",
+                            Value = (parameter.GetType().GetProperty(item.Name).GetValue(parameter, null) ?? DBNull.Value)
+                        };
 
                         sqlCommand.Parameters.Add(param);
                     }
@@ -79,13 +80,13 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna vazio</returns>
-        protected string GetNameIncrement<T>(T obj)
+        protected string GetNameIncrement<T>(T obj) where T : MapEntity
         {
             var param = obj.GetType().GetProperties();
 
             foreach (var item in param)
             {
-                MapEntity.Key[] atributos = (MapEntity.Key[])item.GetCustomAttributes(typeof(MapEntity.Key), true);
+                MapEntity.PrimaryKey[] atributos = (MapEntity.PrimaryKey[])item.GetCustomAttributes(typeof(MapEntity.PrimaryKey), true);
 
                 if (atributos.Length > 0)
                 {
@@ -105,13 +106,13 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna vazio</returns>
-        protected string GetNamePrimaryKey<T>(T obj)
+        protected string GetNamePrimaryKey<T>(T obj) where T : MapEntity
         {
             var param = obj.GetType().GetProperties();
 
             foreach (var item in param)
             {
-                MapEntity.Key[] atributos = (MapEntity.Key[])item.GetCustomAttributes(typeof(MapEntity.Key), true);
+                MapEntity.PrimaryKey[] atributos = (MapEntity.PrimaryKey[])item.GetCustomAttributes(typeof(MapEntity.PrimaryKey), true);
 
                 if (atributos.Length > 0)
                 {
@@ -131,7 +132,7 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome do campo da entidade, caso não encontre retorna o nome padrão do campos definido para entidade</returns>
-        protected string GetNameColumn<T>(T obj)
+        protected string GetNameColumn<T>(T obj) where T : MapEntity
         {
             var param = obj.GetType().GetProperties();
 
@@ -157,7 +158,7 @@ namespace DynamicSQL.Libs
         /// <typeparam name="T">Tipo da entidade</typeparam>
         /// <param name="obj">Objeto da entidade</param>
         /// <returns>Retorna o nome da tabela, caso não encontre retonra vazio</returns>
-        public static string GetNameTable<T>(T obj)
+        public static string GetNameTable<T>(T obj) where T: MapEntity
         {
             MapEntity.Table[] atributos = (MapEntity.Table[])obj.GetType().GetCustomAttributes(typeof(MapEntity.Table), true);
 

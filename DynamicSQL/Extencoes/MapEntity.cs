@@ -15,15 +15,23 @@ namespace DynamicSQL.Extencoes
         public class Table : Attribute
         {
             /// <summary>
+            /// lasse para definir a tabela do banco de dados nos atributos
+            /// </summary>
+            /// <param name="name">Nome da tabela do Banco de Dados</param>
+            public Table(string name)
+            {
+                Name = name;
+            }
+            /// <summary>
             /// Nome da tabela do Banco de Dados
             /// </summary>
-            public string Name { get; set; }
+            public string Name { get; private set; }
         }
         /// <summary>
         /// Classe para definir os atrubutos dos campos da tabela do banco de dados.
         /// </summary>
         [AttributeUsage(AttributeTargets.Property)]
-        public class Key : Attribute
+        public class PrimaryKey : Attribute
         {
             /// <summary>
             /// Chave primária da coluna da tabala do banco
@@ -33,6 +41,15 @@ namespace DynamicSQL.Extencoes
             /// Incremento da coluna da tabala do banco
             /// </summary>
             public bool Increment { get; set; } = false;
+
+            ///// <summary>
+            ///// Classe para definir os atrubutos dos campos da tabela do banco de dados.
+            ///// </summary>
+            ///// <param name="increment">Incremento da coluna da tabala do banco</param>
+            //public PrimaryKey(bool increment=false)
+            //{
+            //    Increment = increment;
+            //}
         }
 
         /// <summary>
@@ -44,7 +61,16 @@ namespace DynamicSQL.Extencoes
             /// <summary>
             /// Nome do campo da tabela
             /// </summary>
-            public string Name { get; set; }
+            public string Name { get; private set; }
+
+            /// <summary>
+            /// Classe para definir os atrubutos dos campos da tabela do banco de dados.
+            /// </summary>
+            /// <param name="name">Nome do campo da tabela</param>
+            public Column(string name)
+            {
+                Name = name;
+            }
         }
     }
 }

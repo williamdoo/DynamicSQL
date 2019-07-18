@@ -20,7 +20,7 @@ namespace DynamicSQL
         /// <summary>
         /// Cadeia de informações para realizar a abertura de uma conexão com o banco de dados
         /// </summary>
-        public string ConnectionDataBase { get; private set; }
+        public static string ConnectionDataBase { get; set; }
         /// <summary>
         /// Obtem o tempo de espera da tentativa de abertura da conexão com o banco de dado (tempo em segundos)
         /// </summary>
@@ -29,13 +29,22 @@ namespace DynamicSQL
         /// Indicação do estado da conexão com o banco de dados
         /// </summary>
         public System.Data.ConnectionState State { get { return sqlConn.State; } }
+
         /// <summary>
-        /// Inicia uma nova instância com uma cadeia de informações para abrir uma conexão com o banco de dados
+        /// Iniciar uma nova instância com uma cadeia de informações para abrir uma conexão com o banco de dados
+        /// </summary>
+        public Connection()
+        {
+            sqlConn = new SqlConnection(ConnectionDataBase);
+        }
+
+        /// <summary>
+        /// Iniciar uma nova instância com uma cadeia de informações para abrir uma conexão com o banco de dados
         /// </summary>
         /// <param name="connection"></param>
-        public Connection(string connection)
+        public Connection(string connectionString)
         {
-            ConnectionDataBase = connection;
+            ConnectionDataBase = connectionString;
             sqlConn = new SqlConnection(ConnectionDataBase);
         }
 

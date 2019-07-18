@@ -36,6 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -62,6 +63,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="CommandSQL.cs" />
     <Compile Include="Connection.cs" />
+    <Compile Include="Extencoes\Ignore.cs" />
     <Compile Include="Extencoes\MapEntity.cs" />
     <Compile Include="Flags\EnumBegin.cs" />
     <Compile Include="Libs\AppDynamic.cs" />

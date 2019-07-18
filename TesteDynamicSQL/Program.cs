@@ -61,10 +61,10 @@ namespace TesteDynamicSQL
         private static void CarregarDadosEspecificoClasseTipada()
         {
             Stopwatch sw = Stopwatch.StartNew();
-            List<Cliente> cliente;
+            //List<Cliente> cliente;
             using (CommandSQL comando = conexao.OpenCommandSQL())
             {
-                cliente = comando.Get<Cliente>("NOME_CLI like @NOME_CLI", new { NOME_CLI = "Vania" }).ToList();
+                //cliente = comando.Get<Cliente>("NOME_CLI like @NOME_CLI", new { NOME_CLI = "Vania" }).ToList();
             }
             sw.Stop();
             Console.WriteLine($"Tempo de retorno da consulta Classe tipada - {sw.Elapsed.Minutes}:{sw.Elapsed.Seconds}:{sw.Elapsed.Milliseconds}");
@@ -162,11 +162,11 @@ namespace TesteDynamicSQL
         {
             using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
-                Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_CLI = 123 }).FirstOrDefault();
+                //Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_CLI = 123 }).FirstOrDefault();
 
-                fone.TELEFONE_CLI = "119258741369";
-                int linhasAlterada = comando.Update(fone);
-                comando.Commit();
+                //fone.TELEFONE_CLI = "119258741369";
+                //int linhasAlterada = comando.Update(fone);
+                //comando.Commit();
             }
         }
 
@@ -200,10 +200,10 @@ namespace TesteDynamicSQL
         {
             using (CommandSQL comando = conexao.OpenCommandSQL(DynamicSQL.Flags.EnumBegin.Begin.BeginTransaction))
             {
-                Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_FONE = 123 }).FirstOrDefault();
+                //Cliente fone = comando.Get<Cliente>("ID_CLI = @ID_CLI", new { ID_FONE = 123 }).FirstOrDefault();
 
-                int linhasAlterada = comando.Delete(fone);
-                comando.Commit();
+                //int linhasAlterada = comando.Delete(fone);
+                //comando.Commit();
             }
         }
     }

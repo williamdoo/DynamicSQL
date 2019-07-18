@@ -48,42 +48,55 @@ namespace DynamicSQL
             }
         }
 
-        /// <summary>
-        /// Obtem uma lista de registro e atribui na entidade
-        /// </summary>
-        /// <typeparam name="T">Tipo de entidade</typeparam>
-        /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         #region Select
+        /// <summary>
+        /// Obtem uma lista de registro e atribuir na entidade
+        /// </summary>
+        /// <typeparam name="T">Entidade do tipo MapEntity</typeparam>
+        /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         public IList<T> GetAll<T>() where T : MapEntity, new()
         {
             T t = new T();
-            string commSelect = "";
+            string strSelect = "";
             SqlCommand.Parameters.Clear();
-            commSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)}";
+            strSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)}";
 
-            return Select<T>(commSelect, null);
+            return Select<T>(strSelect, null);
         }
 
         /// <summary>
-        /// Obtem uma lista de registro e atribui na entidades        /// </summary>
-        /// <typeparam name="T">Tipo de entidade</typeparam>
-        /// <param name="clauseWhere">Cláusula where para filtrar as informações</param>
-        /// <param name="parameters">Parametro com os valores definido para filtrar as informações</param>
-        /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
-        public IList<T> Get<T>(string clauseWhere, object parameters) where T : MapEntity, new()
+        /// Obtem um registro e atribuir na entidade        
+        /// </summary>
+        /// <typeparam name="T">Entidade do tipo MapEntity</typeparam>
+        /// <param name="id">ID do registro da busca</param>
+        /// <returns>Retorna um registro do tipo da entidade com as informações do banco de dados</returns>
+        public T Get<T>(int id) where T : MapEntity, new()
         {
             T t = new T();
-            string strSelect;
-            AddParameter(SqlCommand, parameters);
-            strSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)} WHERE {clauseWhere.Trim()} ";
+            string strSelect, nameColPK;
+            SqlCommand.Parameters.Clear();
+            nameColPK = GetNamePrimaryKey(t);
+            strSelect = $"SELECT {t.FormatSintaxe(", ", "")} FROM {GetNameTable(t)} WHERE {nameColPK} = {id}";
+            SqlCommand.CommandType = System.Data.CommandType.Text;
+            SqlCommand.CommandText = strSelect;
 
-            return Select<T>(strSelect, parameters);
+            using (SqlDataReader sqldr = SqlCommand.ExecuteReader())
+            {
+                sqldr.Read();
+
+                for (int i = 0; i < sqldr.FieldCount; i++)
+                {
+                    SetValue(t, sqldr.GetName(i), sqldr.GetValue(i));
+                }
+            }
+
+            return t;
         }
 
         /// <summary>
         /// Obtem uma lista de registro e atribui na entidade
         /// </summary>
-        /// <typeparam name="T">Tipo de entidade</typeparam>
+        /// <typeparam name="T">Entidade</typeparam>
         /// <param name="command">Camando de select</param>
         /// <param name="parameters">Parametro com os valores definido no camando de select</param>
         /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
@@ -95,7 +108,6 @@ namespace DynamicSQL
             SqlCommand.CommandText = command;
             using (SqlDataReader sqldr = SqlCommand.ExecuteReader())
             {
-
                 while (sqldr.Read())
                 {
                     T t = new T();
@@ -133,23 +145,23 @@ namespace DynamicSQL
         /// <summary>
         /// Inserir um registro no banco de dado com as informaçoes de entidade
         /// </summary>
-        /// <param name="entity">Objeto entidade da tabela</param>
+        /// <param name="entity">Objeto entidade da tabela do tipo MapEntity</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Insert<T>(T entity) where T: MapEntity
         {
-            int linhaAfetada = 0;
+            int rowAffected = 0;
             int? id = null;
-            string strInsert = "", nomeCampoIdentity;
+            string strInsert = "", nameColumnIdentity;
             if (entity != null)
             {
-                nomeCampoIdentity = GetNameIncrement(entity);
-                strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nomeCampoIdentity)}) values ({entity.FormatSintaxe(", ", nomeCampoIdentity, "insert")})";
-                AddParameter(SqlCommand, entity, nomeCampoIdentity);
+                nameColumnIdentity = GetNameIncrement(entity);
+                strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nameColumnIdentity)}) values ({entity.FormatSintaxe(", ", nameColumnIdentity, "insert")})";
+                AddParameter(SqlCommand, entity, nameColumnIdentity);
                 SqlCommand.CommandType = System.Data.CommandType.Text;
-                if (string.IsNullOrWhiteSpace(nomeCampoIdentity))
+                if (string.IsNullOrWhiteSpace(nameColumnIdentity))
                 {                    
                     SqlCommand.CommandText = strInsert;
-                    linhaAfetada = SqlCommand.ExecuteNonQuery();
+                    rowAffected = SqlCommand.ExecuteNonQuery();
                 }
                 else
                 {
@@ -160,13 +172,13 @@ namespace DynamicSQL
                     if (obj != null)
                     {
                         id = int.Parse(obj.ToString());
-                        linhaAfetada = 1;
-                        SetValue(entity, nomeCampoIdentity, id);
+                        rowAffected = 1;
+                        SetValue(entity, nameColumnIdentity, id);
                     }
                 }
             }
 
-            return linhaAfetada;
+            return rowAffected;
         }
 
 
@@ -219,20 +231,20 @@ namespace DynamicSQL
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Update<T>(T entity) where T: MapEntity
         {
-            int linhaAfetada = 0;
-            string strUpdate = "", nomeCampoChave;
+            int rowAffected = 0;
+            string strUpdate = "", nameColPK;
             if (entity != null)
             {
-                nomeCampoChave = GetNamePrimaryKey(entity);
+                nameColPK = GetNamePrimaryKey(entity);
                 AddParameter(SqlCommand, entity);                
-                strUpdate = $"UPDATE {GetNameTable(entity)} SET {entity.FormatSintaxe(", ", nomeCampoChave, "update")} WHERE {nomeCampoChave} = @{nomeCampoChave}";
+                strUpdate = $"UPDATE {GetNameTable(entity)} SET {entity.FormatSintaxe(", ", nameColPK, "update")} WHERE {nameColPK} = @{nameColPK}";
                 SqlCommand.CommandType = System.Data.CommandType.Text;
                 SqlCommand.CommandText = strUpdate;
 
-                linhaAfetada = SqlCommand.ExecuteNonQuery();
+                rowAffected = SqlCommand.ExecuteNonQuery();
             }
 
-            return linhaAfetada;
+            return rowAffected;
         }
 
         /// <summary>
@@ -242,7 +254,7 @@ namespace DynamicSQL
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Update(string command)
         {
-            int linhaAfetada = 0;
+            int rowAffected = 0;
 
             if (!clearParameters)
             {
@@ -250,9 +262,9 @@ namespace DynamicSQL
             }
             SqlCommand.CommandType = System.Data.CommandType.Text;
             SqlCommand.CommandText = command;
-            linhaAfetada = SqlCommand.ExecuteNonQuery();
+            rowAffected = SqlCommand.ExecuteNonQuery();
 
-            return linhaAfetada;
+            return rowAffected;
         }
 
         /// <summary>
@@ -279,21 +291,42 @@ namespace DynamicSQL
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Delete<T>(T entity) where T : MapEntity
         {            
-            int linhaAfetada = 0;
-            string strDelete = "", nomeCampoChave;
+            int rowAffected = 0;
+            string strDelete = "", nameColumnPK;
 
             if (entity != null)
             {
-                nomeCampoChave = GetNamePrimaryKey(entity);
+                nameColumnPK = GetNamePrimaryKey(entity);
                 AddParameter(SqlCommand, entity);
-                strDelete = $"DELETE FROM {GetNameTable(entity)} WHERE {nomeCampoChave} = @{nomeCampoChave}";
+                strDelete = $"DELETE FROM {GetNameTable(entity)} WHERE {nameColumnPK} = @{nameColumnPK}";
                 SqlCommand.CommandType = System.Data.CommandType.Text;
                 SqlCommand.CommandText = strDelete;
 
-                linhaAfetada = SqlCommand.ExecuteNonQuery();
+                rowAffected = SqlCommand.ExecuteNonQuery();
             }
 
-            return linhaAfetada;
+            return rowAffected;
+        }
+
+        /// <summary>
+        /// Apaga o registro do banco de dados passando o ID do regristro
+        /// </summary>
+        /// <param name="id">ID do registro da busca</param>
+        /// <returns>Retorna o número de linhas afatadas</returns>
+        public int Delete<T>(int id) where T : MapEntity, new()
+        {
+            T t = new T();
+            int rowAffected = 0;
+            string strDelete = "", nameColumnPK;
+            SqlCommand.Parameters.Clear();
+            nameColumnPK = GetNamePrimaryKey(t);
+            strDelete = $"DELETE FROM {GetNameTable(t)} WHERE {nameColumnPK} = {id}";
+
+            SqlCommand.CommandType = System.Data.CommandType.Text;
+            SqlCommand.CommandText = strDelete;
+            rowAffected = SqlCommand.ExecuteNonQuery();
+
+            return rowAffected;
         }
 
         /// <summary>
@@ -303,14 +336,14 @@ namespace DynamicSQL
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Delete(string command)
         {
-            int linhaAfetada = 0;
+            int rowAffected = 0;
 
             SqlCommand.Parameters.Clear();
             SqlCommand.CommandType = System.Data.CommandType.Text;
             SqlCommand.CommandText = command;
-            linhaAfetada = SqlCommand.ExecuteNonQuery();
+            rowAffected = SqlCommand.ExecuteNonQuery();
 
-            return linhaAfetada;
+            return rowAffected;
         }
 
         /// <summary>
@@ -329,37 +362,13 @@ namespace DynamicSQL
 
         #region Procedure
         /// <summary>
-        /// Executar Stored Procedure e atribui ao Data Set
-        /// </summary>
-        /// <param name="nameProcedure">Nome da precedure</param>
-        /// <param name="parameters">Parâmetro com os valores definido</param>
-        /// <returns>Retorna um DataSet as informações da Stored Procedure</returns>
-        public DataSet ExecuteStoredProcedure(string nameProcedure, object parameters=null)
-        {
-            DataSet ds = new DataSet();
-            SqlDataAdapter sqlda;
-            SqlCommand.CommandType = CommandType.StoredProcedure;
-
-            if (parameters != null)
-            {
-                AddParameter(SqlCommand, parameters);
-            }
-
-            SqlCommand.CommandText = nameProcedure;
-            sqlda = new SqlDataAdapter(SqlCommand);
-            sqlda.Fill(ds);
-
-            return ds;
-        }
-
-        /// <summary>
         /// Executar Stored Procedure e atribui a uma entidade
         /// </summary>
         /// <typeparam name="T">Tipo de entidade</typeparam>
         /// <param name="nameProcedure">Nome da precedure</param>
         /// <param name="parameters">Parâmetro com os valores definido</param>
         /// <returns>Retorna um IList do tipo da entidade com as informações da Stored Procedure</returns>
-        public IList<T> ExecuteStoredProcedure<T>(string nameProcedure, object parameters = null) where T:new()
+        public IList<T> ExecuteStoredProcedure<T>(string nameProcedure, object parameters = null) where T : new()
         {
             List<T> listDynamic = new List<T>();
 
@@ -388,6 +397,30 @@ namespace DynamicSQL
             }
             return listDynamic;
         }
+
+        /// <summary>
+        /// Executar Stored Procedure e atribui ao Data Set
+        /// </summary>
+        /// <param name="nameProcedure">Nome da precedure</param>
+        /// <param name="parameters">Parâmetro com os valores definido</param>
+        /// <returns>Retorna um DataSet as informações da Stored Procedure</returns>
+        public DataSet ExecuteStoredProcedure(string nameProcedure, object parameters=null)
+        {
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlda;
+            SqlCommand.CommandType = CommandType.StoredProcedure;
+
+            if (parameters != null)
+            {
+                AddParameter(SqlCommand, parameters);
+            }
+
+            SqlCommand.CommandText = nameProcedure;
+            sqlda = new SqlDataAdapter(SqlCommand);
+            sqlda.Fill(ds);
+
+            return ds;
+        }        
         #endregion
 
         /// <summary>

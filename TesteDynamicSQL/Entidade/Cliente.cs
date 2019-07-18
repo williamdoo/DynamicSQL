@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace TesteDynamicSQL.Entidade
 {
-    [Table(Name = "CLIENTES")]
+    [Table("CLIENTES")]
     public class Cliente: MapEntity
     {
-        [Key(Increment = true)]
+        [PrimaryKey(Increment = true)]
         public int ID_CLI { get; set; }
-        [Column(Name ="Teste")]
+        [Column("Teste")]
         public string NOME_CLI { get; set; }
         public string CPF_CLI { get; set; }
         public DateTime DATANASC_CLI { get; set; }

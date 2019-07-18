@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using DynamicSQL.Extencoes;
+using System.Linq;
 
 namespace DynamicSQL.Libs
 {
@@ -8,7 +9,7 @@ namespace DynamicSQL.Libs
     public static class TypeSintaxe
     {
         /// <summary>
-        /// Formata a sintaxe utilizada em comando SQL
+        /// Formatar a sintaxe utilizada em comando SQL
         /// </summary>
         /// <param name="parameter">Campos que vão ser formatado para sintaxe do SQL</param>
         /// <param name="separate">Separador dos campos</param>
@@ -20,7 +21,7 @@ namespace DynamicSQL.Libs
         }
 
         /// <summary>
-        /// Formata a sintaxe utilizada em camando SQL
+        /// Formatar a sintaxe utilizada em camando SQL
         /// </summary>
         /// <param name="parameter">Campos que vão ser formatado para sintaxe do SQL</param>
         /// <param name="separate">Separador dos campos</param>
@@ -34,11 +35,11 @@ namespace DynamicSQL.Libs
             switch (typeSitaxe)
             {
                 case "insert":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn).Select(t => "@" + t.Name));
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => "@" + t.Name));
                 case "update":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn).Select(t => t.Name+ " = @" + t.Name));
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => t.Name + " = @" + t.Name));
                 case "select":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn).Select(t => t.Name));
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => t.Name));
             }
 
             return "";

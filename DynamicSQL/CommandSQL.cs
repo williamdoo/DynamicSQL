@@ -97,7 +97,7 @@ namespace DynamicSQL
         /// Obtem uma lista de registro e atribui na entidade
         /// </summary>
         /// <typeparam name="T">Entidade</typeparam>
-        /// <param name="string clauseWhere">Cláusula where para filtrar as informações que serão consultadas</param>
+        /// <param name="clauseWhere">Cláusula where para filtrar as informações que serão consultadas</param>
         /// <returns>Retorna um IList do tipo da entidade com as informações do banco de dados</returns>
         public IList<T> Select<T>(string clauseWhere) where T : MapEntity, new()
         {
@@ -186,7 +186,7 @@ namespace DynamicSQL
             if (entity != null)
             {
                 nameColumnIdentity = GetNameIncrement(entity);
-                strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nameColumnIdentity)}) values ({entity.FormatSintaxe(", ", nameColumnIdentity, "insert")})";
+                strInsert = $"INSERT INTO {GetNameTable(entity)} ({entity.FormatSintaxe(", ", nameColumnIdentity, "insertcolumn")}) values ({entity.FormatSintaxe(", ", nameColumnIdentity, "insert")})";
                 AddParameter(SqlCommand, entity, nameColumnIdentity);
                 SqlCommand.CommandType = System.Data.CommandType.Text;
                 if (string.IsNullOrWhiteSpace(nameColumnIdentity))
@@ -249,7 +249,7 @@ namespace DynamicSQL
         {
             string strInsert = "";
             AddParameter(SqlCommand, parameters);
-            strInsert = $"INSERT INTO {table} ({parameters.FormatSintaxe(", ", "")}) values ({parameters.FormatSintaxe(", ", "", "insert")})";
+            strInsert = $"INSERT INTO {table} ({parameters.FormatSintaxe(", ", "", "insertcolumn")}) values ({parameters.FormatSintaxe(", ", "", "insert")})";
             return Insert(strInsert);
         }
         #endregion
@@ -362,7 +362,7 @@ namespace DynamicSQL
 
         /// <summary>
         /// Apaga os registros no banco de dado onde é informado o comando completo do delete 
-        /// </summarycommand
+        /// </summary>
         /// <param name="command">Comando de delete com seus valoes definido</param>
         /// <returns>Retorna o número de linhas afatadas</returns>
         public int Delete(string command)

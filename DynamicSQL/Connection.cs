@@ -41,7 +41,7 @@ namespace DynamicSQL
         /// <summary>
         /// Iniciar uma nova instância com uma cadeia de informações para abrir uma conexão com o banco de dados
         /// </summary>
-        /// <param name="connection"></param>
+        /// <param name="connectionString"></param>
         public Connection(string connectionString)
         {
             ConnectionDataBase = connectionString;

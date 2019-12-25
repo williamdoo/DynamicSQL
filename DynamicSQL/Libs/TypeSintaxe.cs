@@ -35,11 +35,13 @@ namespace DynamicSQL.Libs
             switch (typeSitaxe)
             {
                 case "insert":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => "@" + t.Name));
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(MapEntity.Ignore)).Select(t => "@" + t.Name));
                 case "update":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => t.Name + " = @" + t.Name));
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(MapEntity.Ignore)).Select(t => t.Name + " = @" + t.Name));
+                case "insertcolumn":
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(MapEntity.Ignore)).Select(t => t.Name));
                 case "select":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => t.Name));
+                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.CanWrite == true && t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(MapEntity.Ignore)).Select(t => t.Name));
             }
 
             return "";

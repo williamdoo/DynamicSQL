@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DynamicSQL.Extencoes
 {
+    /// <summary>
+    /// Classe para Mapear as entidades do banco de dados
+    /// </summary>
     public class MapEntity
     {
         /// <summary>
@@ -41,19 +44,10 @@ namespace DynamicSQL.Extencoes
             /// Incremento da coluna da tabala do banco
             /// </summary>
             public bool Increment { get; set; } = false;
-
-            ///// <summary>
-            ///// Classe para definir os atrubutos dos campos da tabela do banco de dados.
-            ///// </summary>
-            ///// <param name="increment">Incremento da coluna da tabala do banco</param>
-            //public PrimaryKey(bool increment=false)
-            //{
-            //    Increment = increment;
-            //}
         }
 
         /// <summary>
-        /// Classe para definir os atrubutos dos campos da tabela do banco de dados.
+        /// Classe para definir os atributos dos campos da tabela do banco de dados.
         /// </summary>
         [AttributeUsage(AttributeTargets.Property)]
         public class Column : Attribute
@@ -71,6 +65,15 @@ namespace DynamicSQL.Extencoes
             {
                 Name = name;
             }
+        }
+
+        /// <summary>
+        /// Ignorar a propriedade para Select, Insert e Updade
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Property)]
+        public class Ignore : Attribute
+        {
+
         }
     }
 }

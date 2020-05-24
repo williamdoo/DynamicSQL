@@ -17,7 +17,13 @@ namespace DynamicSQL.Flags
         [Flags]
         public enum Begin
         {
+            /// <summary>
+            /// Nenhum transação aberta atual
+            /// </summary>
             None = 0,
+            /// <summary>
+            /// Abertura de uma transação atual
+            /// </summary>
             BeginTransaction = 1
         }
     }

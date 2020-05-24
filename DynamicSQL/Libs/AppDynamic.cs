@@ -14,6 +14,9 @@ namespace DynamicSQL.Libs
     /// </summary>
     public class AppDynamic
     {
+        /// <summary>
+        /// Paramentros limpos
+        /// </summary>
         protected bool clearParameters = false;
         /// <summary>
         /// Adicionar parâmetros no SQL Command
@@ -27,7 +30,9 @@ namespace DynamicSQL.Libs
             clearParameters = true;
             if (parameter != null)
             {
-                foreach (var item in parameter.GetType().GetProperties())
+                var teste = parameter.GetType().GetProperties();
+
+                foreach (var item in parameter.GetType().GetProperties().Where(t => (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(MapEntity.Ignore)))
                 {
                     if (item.Name.ToLower() != (ignoreColumn?.ToLower()??""))
                     {

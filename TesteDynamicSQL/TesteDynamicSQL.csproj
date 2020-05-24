@@ -59,7 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entidade\Cliente.cs" />
+    <Compile Include="Entidade\Email.cs" />
+    <Compile Include="Entidade\Loja.cs" />
+    <Compile Include="Entidade\Pessoa.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

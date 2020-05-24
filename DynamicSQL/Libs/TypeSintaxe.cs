@@ -35,11 +35,33 @@ namespace DynamicSQL.Libs
             switch (typeSitaxe)
             {
                 case "insert":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => "@" + t.Name));
+                    var qInsert = from c in parameter.GetType().GetProperties()
+                                  where c.Name != ignoreColumn &&
+                                        (c.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)
+                                  select new
+                                  {
+                                      Name = "@" + c.Name
+                                  };
+                    return string.Join(separate, qInsert.Select(t => "@" + t.Name));
                 case "update":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => t.Name + " = @" + t.Name));
+                    var qUpdate = from c in parameter.GetType().GetProperties()
+                                where c.Name != ignoreColumn &&
+                                      (c.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)
+                                select new
+                                {
+                                    Name = " = @"+c.Name
+                                };
+                    return string.Join(separate, qUpdate.Select(t=>t.Name));
                 case "select":
-                    return string.Join(separate, parameter.GetType().GetProperties().Where(t => t.Name != ignoreColumn && (t.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)).Select(t => t.Name));
+                    var qSelect = from c in parameter.GetType().GetProperties()
+                                where c.Name != ignoreColumn &&
+                                      (c.CustomAttributes?.FirstOrDefault()?.AttributeType ?? null) != typeof(Ignore)
+                                select new
+                                {
+                                    c.Name
+                                };
+
+                    return string.Join(separate, qSelect.Select(t=>t.Name));
             }
 
             return "";
